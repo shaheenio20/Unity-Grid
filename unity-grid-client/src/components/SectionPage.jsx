@@ -15,6 +15,8 @@ const badgeClasses = {
 }
 
 function SectionPage({ section }) {
+  const items = Array.isArray(section?.items) ? section.items.filter(Boolean) : []
+
   return (
     <main className="min-h-[calc(100vh-150px)] pb-[72px]">
       <header className="border-b border-[#e8edf4] bg-gradient-to-r from-[#f3f7ff] to-[#f8f7ff] py-[38px] max-[600px]:py-7">
@@ -33,11 +35,10 @@ function SectionPage({ section }) {
 
       <section className="mx-auto w-[min(940px,calc(100%-48px))] pt-[34px] max-[600px]:w-[calc(100%-32px)]">
         <div className="mb-[14px] flex items-center justify-between">
-          <div><h2 className="m-0 text-base font-semibold text-[#29374d]">{section.shortTitle}</h2><p className="mt-[5px] text-[10px] text-[#909bad]">Sample content for the UnityGrid demo.</p></div>
-          <span className="rounded border border-[#e4eaf5] bg-white px-2 py-1.5 text-[8px] font-extrabold tracking-[.6px] text-[#7d8ca5]">DEMO DATA</span>
+          <div><h2 className="m-0 text-base font-semibold text-[#29374d]">{section.shortTitle}</h2><p className="mt-[5px] text-[10px] text-[#909bad]">Current listings</p></div>
         </div>
-        <div className="grid gap-[10px]">
-          {section.items.map((item) => (
+        {items.length ? <div className="grid gap-[10px]">
+          {items.map((item) => (
             <article className="flex items-center gap-[14px] rounded-[10px] border border-[#e7ebf2] bg-white p-4 max-[600px]:flex-wrap max-[600px]:items-start max-[600px]:gap-[11px] max-[600px]:p-[13px]" key={item.title}>
               <span className={`grid size-[42px] shrink-0 place-items-center rounded-[10px] text-[13px] font-extrabold max-[600px]:size-9 ${toneClasses[item.tone] ?? toneClasses.blue}`}>{item.symbol}</span>
               <div className="min-w-0 flex-1 max-[600px]:basis-[calc(100%-50px)]">
@@ -52,8 +53,7 @@ function SectionPage({ section }) {
               {section.action && <Link className="shrink-0 rounded-md border border-[#e2e8f4] px-2.5 py-[9px] text-[9px] font-bold text-[#526dc2] hover:bg-[#f4f6fd] max-[600px]:ml-[47px]" to="/#join">{section.action} <span className="ml-1">→</span></Link>}
             </article>
           ))}
-        </div>
-        <p className="mt-[13px] text-[9px] leading-relaxed text-[#9da7b5]">Demo only — these requests and figures are illustrative and are not connected to a live database.</p>
+        </div> : <p className="rounded-[10px] border border-dashed border-[#dfe5ef] bg-white p-6 text-center text-xs text-[#758297]">No listings available yet.</p>}
       </section>
     </main>
   )

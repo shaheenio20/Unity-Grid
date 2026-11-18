@@ -1,20 +1,41 @@
-import { Link } from 'react-router-dom'
+const footerSections = [
+  { title: 'Get involved', links: ['Blood Network', 'Campus Events', 'Crisis & Relief'] },
+  { title: 'Explore', links: ['About UnityGrid', 'Community Guidelines', 'Contact'] },
+]
 
 function Footer() {
   return (
-    <footer className="border-t border-[#e8ecf2] bg-white">
-      <div className="mx-auto grid w-[min(1120px,calc(100%-48px))] grid-cols-[auto_1fr_auto] items-center gap-x-7 gap-y-[14px] py-[23px] max-[700px]:w-[calc(100%-32px)] max-[700px]:grid-cols-[1fr_auto]">
-        <Link className="flex shrink-0 items-center gap-[9px]" to="/">
-          <span className="grid size-[31px] place-items-center rounded-[10px] bg-gradient-to-br from-[#446fe0] to-[#7157cf] text-[13px] font-extrabold tracking-[-1px] text-white shadow-[0_4px_11px_#526acf38]">U<span className="-ml-[3px] text-[11px] text-[#b7c8ff]">+</span></span>
-          <span className="flex flex-col text-[13px] font-extrabold leading-[1.05] tracking-[-.5px] text-[#24334b]">Unity<span className="contents text-[#5772d0]">Grid</span><small className="mt-1 text-[6px] font-bold tracking-[1.05px] text-[#9aa4b4]">COMMUNITY RESPONSE NETWORK</small></span>
-        </Link>
-        <p className="m-0 text-[9px] text-[#8994a4] max-[700px]:col-span-full max-[700px]:row-start-2">Built on campus. Ready for the community.</p>
-        <div className="flex gap-[18px] max-[700px]:col-span-full max-[700px]:row-start-3 max-[700px]:flex-wrap max-[700px]:gap-3">
-          <Link className="text-[9px] text-[#8792a2] hover:text-[#496bd1]" to="/blood">Blood Network</Link>
-          <Link className="text-[9px] text-[#8792a2] hover:text-[#496bd1]" to="/events">Campus Events</Link>
-          <Link className="text-[9px] text-[#8792a2] hover:text-[#496bd1]" to="/ledger">Public Ledger</Link>
+    <footer className="bg-[#14243a] text-white">
+      <div className="mx-auto grid w-[min(1120px,calc(100%-48px))] grid-cols-[1.4fr_1fr_1fr] gap-10 py-11 max-[700px]:w-[calc(100%-32px)] max-[700px]:grid-cols-2 max-[700px]:gap-x-6 max-[700px]:gap-y-8 max-[420px]:grid-cols-1">
+        <div className="max-[700px]:col-span-full">
+          <div className="flex items-center gap-[10px]">
+            <span className="grid size-[36px] place-items-center rounded-[10px] bg-white/10 text-[15px] font-extrabold text-white ring-1 ring-white/15">
+              U<span className="-ml-[4px] text-[#ff8585]">+</span>
+            </span>
+            <span className="text-[17px] font-extrabold tracking-[-.6px]">UnityGrid</span>
+          </div>
+          <p className="mb-0 mt-4 max-w-[310px] text-[11px] leading-[1.8] text-[#b8c4d4]">
+            Bringing campus communities together to support one another and respond when it matters.
+          </p>
         </div>
-        <span className="col-span-full border-t border-[#f0f2f5] pt-3 text-[8px] text-[#a4adba] max-[700px]:row-start-4">© {new Date().getFullYear()} UnityGrid · A community-first initiative</span>
+
+        {footerSections.map((section) => (
+          <div key={section.title}>
+            <h2 className="m-0 text-[11px] font-bold text-white">{section.title}</h2>
+            <ul className="mt-4 grid list-none gap-3 p-0">
+              {section.links.map((label) => (
+                <li className="text-[10px] text-[#b8c4d4]" key={label}>{label}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex w-[min(1120px,calc(100%-48px))] items-center justify-between gap-3 py-4 text-[9px] text-[#9eacbf] max-[700px]:w-[calc(100%-32px)] max-[500px]:items-start max-[500px]:flex-col">
+          <span>© {new Date().getFullYear()} UnityGrid · A community-first initiative</span>
+          <span>Built on campus. Ready for the community.</span>
+        </div>
       </div>
     </footer>
   )
