@@ -1,23 +1,34 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { MongoClient } from "mongodb";
-import dotenv from "dotenv";
+import { db } from "./db.js";
 
-dotenv.config();
+const secret = process.env.BETTER_AUTH_SECRET;
 
-const client = new MongoClient(process.env.MONGODB_URI);
-const db = client.db();
+if (!secret || secret.length < 32) {
+  throw new Error("BETTER_AUTH_SECRET must be configured with at least 32 characters.");
+}
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
+  secret,
   database: mongodbAdapter(db),
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 8,
   },
   trustedOrigins: [
     process.env.CLIENT_URL || "http://localhost:5173",
   ],
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === "production",
+  },
   user: {
     additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "Student",
+        required: false,
+      },
       department: {
         type: "string",
         required: false,

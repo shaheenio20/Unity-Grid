@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import {
   CheckCircle2,
@@ -10,16 +10,19 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
+import { authClient } from "../../../lib/authClient";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (password !== confirmPassword) {
@@ -27,7 +30,31 @@ const Register = () => {
       return;
     }
 
-    setError("Account registration isn't available yet. Please check back soon.");
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const { error: signUpError } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      navigate("/", { replace: true });
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to create your account. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const clearError = () => setError("");
@@ -208,9 +235,10 @@ const Register = () => {
 
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="btn w-full h-12 min-h-12 rounded-xl border-0 bg-gradient-to-r from-[#2d6793] to-[#040d15] text-base font-semibold text-white shadow-lg transition-opacity hover:opacity-90"
               >
-                Create account
+                {isSubmitting ? "Creating account..." : "Create account"}
               </button>
             </form>
 

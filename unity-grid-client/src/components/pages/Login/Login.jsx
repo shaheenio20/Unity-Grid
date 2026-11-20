@@ -1,20 +1,46 @@
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { ShieldCheck, Mail, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { authClient } from "../../../lib/authClient";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(
-      "Sign-in isn't available yet. UnityGrid accounts are coming soon.",
-    );
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const { error: signInError } = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+
+      const redirectTarget = location.state?.from || "/departments";
+      navigate(redirectTarget, { replace: true });
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to sign in. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -86,6 +112,14 @@ const Login = () => {
                 Sign in to connect with your campus and community.
               </p>
             </div>
+
+            {/* Notice / Message */}
+            {location.state?.message && (
+              <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs font-semibold text-[#173b69] flex items-center gap-2">
+                <ShieldCheck size={18} className="text-[#173b69] shrink-0" />
+                <span>{location.state.message}</span>
+              </div>
+            )}
 
             {/* Error Message */}
             {error && (
@@ -173,9 +207,10 @@ const Login = () => {
               {/* Sign In */}
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="btn w-full h-12 min-h-12 rounded-xl border-0 bg-gradient-to-r from-[#2d6793] to-[#040d15] text-base font-semibold text-white shadow-lg transition-opacity hover:opacity-90"
               >
-                Sign in
+                {isSubmitting ? "Signing in..." : "Sign in"}
               </button>
             </form>
 

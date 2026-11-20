@@ -8,8 +8,12 @@ import SectionPage from "./components/SectionPage";
 import { portalSections } from "./data/portalData";
 import Login from "./components/pages/Login/Login";
 import Register from "./components/pages/Register/Register";
+import Departments from "./components/pages/Departments/Departments";
+import ClubDetails from "./components/pages/Clubs/ClubDetails";
+import Events from "./components/pages/Events/Events";
 
 const router = createBrowserRouter([
+  // Public website routes wrapped with Navbar & Footer
   {
     path: "/",
     element: <Routes />,
@@ -18,19 +22,56 @@ const router = createBrowserRouter([
         index: true,
         element: <Home />,
       },
-      { path: "blood", element: <SectionPage section={portalSections.blood} /> },
-      { path: "crisis", element: <SectionPage section={portalSections.crisis} /> },
-      { path: "events", element: <SectionPage section={portalSections.events} /> },
-      { path: "ledger", element: <SectionPage section={portalSections.ledger} /> },
       {
-        path: "/login",
-        element: <Login></Login>
+        path: "clubs/:clubId",
+        element: <ClubDetails />,
       },
       {
-        path: "/register",
+        path: "events",
+        element: <Events />,
+      },
+      {
+        path: "blood",
+        element: <SectionPage section={portalSections.blood} />,
+      },
+      {
+        path: "crisis",
+        element: <SectionPage section={portalSections.crisis} />,
+      },
+      {
+        path: "ledger",
+        element: <SectionPage section={portalSections.ledger} />,
+      },
+      {
+        path: "messages",
+        element: (
+          <SectionPage
+            section={{
+              title: "Messages & Coordination",
+              shortTitle: "Direct Channels",
+              description: "Coordinate with volunteers, donors, and campus leads.",
+            }}
+          />
+        ),
+      },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "register",
         element: <Register />,
       },
     ],
+  },
+  // Dedicated Admin Dashboard routes (NO public Navbar or Footer, Left Sidebar layout)
+  {
+    path: "/departments",
+    element: <Departments />,
+  },
+  {
+    path: "/dashboard/admin",
+    element: <Departments />,
   },
 ]);
 
