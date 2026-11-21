@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { authClient } from "../../../lib/authClient";
 import { useCurrentUser } from "../../../lib/useCurrentUser";
+import Swal, { showAlert, showConfirmDelete } from "../../../lib/alerts";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -213,27 +214,27 @@ const Departments = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setFeedback({
-          text: isEdit ? "Department updated successfully!" : "Department created successfully!",
-          type: "success",
-        });
         setShowDeptModal(false);
         setEditingDeptId(null);
         setDeptForm({ name: "", code: "", headOfDept: "", description: "" });
         fetchDashboardData();
-        setTimeout(() => setFeedback({ text: "", type: "" }), 3000);
+        showAlert.success(
+          isEdit ? "Department Updated!" : "Department Created!",
+          isEdit ? "Department details updated successfully." : "New academic department created successfully."
+        );
       } else {
-        alert(data.message || "Failed to save department.");
+        showAlert.error("Save Failed", data.message || "Failed to save department.");
       }
     } catch {
-      alert("Error saving department.");
+      showAlert.error("Error", "Error saving department.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteDepartment = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to delete '${name}'?`)) return;
+    const confirmed = await showConfirmDelete(`department '${name}'`);
+    if (!confirmed) return;
     try {
       const res = await fetch(`${API_BASE}/api/departments/${id}`, {
         method: "DELETE",
@@ -242,11 +243,12 @@ const Departments = () => {
       const data = await res.json();
       if (data.success) {
         fetchDashboardData();
+        showAlert.success("Deleted!", `Department '${name}' has been deleted.`);
       } else {
-        alert(data.message || "Failed to delete department.");
+        showAlert.error("Delete Failed", data.message || "Failed to delete department.");
       }
     } catch {
-      alert("Error deleting department.");
+      showAlert.error("Error", "Error deleting department.");
     }
   };
 
@@ -266,27 +268,27 @@ const Departments = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setFeedback({
-          text: isEdit ? "Club updated successfully!" : "Club created successfully!",
-          type: "success",
-        });
         setShowClubModal(false);
         setEditingClubId(null);
         setClubForm({ name: "", code: "", departmentId: "", description: "", logo: "" });
         fetchDashboardData();
-        setTimeout(() => setFeedback({ text: "", type: "" }), 3000);
+        showAlert.success(
+          isEdit ? "Club Updated!" : "Club Created!",
+          isEdit ? "Club details updated successfully." : "New club created successfully."
+        );
       } else {
-        alert(data.message || "Failed to save club.");
+        showAlert.error("Save Failed", data.message || "Failed to save club.");
       }
     } catch {
-      alert("Error saving club.");
+      showAlert.error("Error", "Error saving club.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteClub = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to delete club '${name}'?`)) return;
+    const confirmed = await showConfirmDelete(`club '${name}'`);
+    if (!confirmed) return;
     try {
       const res = await fetch(`${API_BASE}/api/clubs/${id}`, {
         method: "DELETE",
@@ -295,11 +297,12 @@ const Departments = () => {
       const data = await res.json();
       if (data.success) {
         fetchDashboardData();
+        showAlert.success("Deleted!", `Club '${name}' has been deleted.`);
       } else {
-        alert(data.message || "Failed to delete club.");
+        showAlert.error("Delete Failed", data.message || "Failed to delete club.");
       }
     } catch {
-      alert("Error deleting club.");
+      showAlert.error("Error", "Error deleting club.");
     }
   };
 
@@ -319,10 +322,6 @@ const Departments = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setFeedback({
-          text: isEdit ? "Event updated successfully!" : "Event created successfully!",
-          type: "success",
-        });
         setShowEventModal(false);
         setEditingEventId(null);
         setEventForm({
@@ -336,19 +335,23 @@ const Departments = () => {
           banner: "",
         });
         fetchDashboardData();
-        setTimeout(() => setFeedback({ text: "", type: "" }), 3000);
+        showAlert.success(
+          isEdit ? "Event Updated!" : "Event Published!",
+          isEdit ? "Event details updated successfully." : "New event published successfully."
+        );
       } else {
-        alert(data.message || "Failed to save event.");
+        showAlert.error("Save Failed", data.message || "Failed to save event.");
       }
     } catch {
-      alert("Error saving event.");
+      showAlert.error("Error", "Error saving event.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteEvent = async (id, title) => {
-    if (!window.confirm(`Are you sure you want to delete event '${title}'?`)) return;
+    const confirmed = await showConfirmDelete(`event '${title}'`);
+    if (!confirmed) return;
     try {
       const res = await fetch(`${API_BASE}/api/events/${id}`, {
         method: "DELETE",
@@ -357,11 +360,12 @@ const Departments = () => {
       const data = await res.json();
       if (data.success) {
         fetchDashboardData();
+        showAlert.success("Deleted!", `Event '${title}' has been deleted.`);
       } else {
-        alert(data.message || "Failed to delete event.");
+        showAlert.error("Delete Failed", data.message || "Failed to delete event.");
       }
     } catch {
-      alert("Error deleting event.");
+      showAlert.error("Error", "Error deleting event.");
     }
   };
 

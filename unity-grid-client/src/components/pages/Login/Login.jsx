@@ -1,18 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { ShieldCheck, Mail, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { authClient } from "../../../lib/authClient";
+import { useCurrentUser } from "../../../lib/useCurrentUser";
+import Swal, { showAlert } from "../../../lib/alerts";
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, isAdmin, loading: authLoading } = useCurrentUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && user && isAdmin) {
+      navigate("/departments", { replace: true });
+    }
+  }, [authLoading, user, isAdmin, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,17 +38,44 @@ const Login = () => {
 
       if (signInError) {
         setError(signInError.message);
+        showAlert.error("Sign In Failed", signInError.message || "Invalid email or password.");
         return;
       }
 
-      const redirectTarget = location.state?.from || "/departments";
+      await Swal.fire({
+        icon: "success",
+        title: "Login Successful!",
+        text: "Welcome back to UnityGrid.",
+        timer: 1500,
+        showConfirmButton: false,
+        customClass: {
+          popup: "rounded-3xl shadow-2xl p-6 font-sans",
+          title: "text-lg font-black text-slate-800",
+          htmlContainer: "text-xs text-slate-600 leading-relaxed",
+        },
+      });
+
+      // If user is Admin -> redirect directly to /departments
+      try {
+        const meRes = await fetch(`${API_BASE}/api/me`, { credentials: "include" });
+        const meData = await meRes.json();
+        if (meData?.user?.role === "Admin") {
+          navigate("/departments", { replace: true });
+          return;
+        }
+      } catch {
+        // ignore
+      }
+
+      const redirectTarget = location.state?.from || "/";
       navigate(redirectTarget, { replace: true });
     } catch (requestError) {
-      setError(
+      const errMsg =
         requestError instanceof Error
           ? requestError.message
-          : "Unable to sign in. Please try again.",
-      );
+          : "Unable to sign in. Please try again.";
+      setError(errMsg);
+      showAlert.error("Sign In Error", errMsg);
     } finally {
       setIsSubmitting(false);
     }

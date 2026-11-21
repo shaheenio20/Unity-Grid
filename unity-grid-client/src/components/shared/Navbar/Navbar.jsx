@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { authClient } from '../../../lib/authClient'
 import { useCurrentUser } from '../../../lib/useCurrentUser'
+import { showAlert, showToast } from '../../../lib/alerts'
 
 const navLinks = [
   { label: 'Home', to: '/' },
@@ -25,15 +26,18 @@ function Navbar() {
       const { error } = await authClient.signOut()
       if (error) {
         setAuthError(error.message)
+        showAlert.error('Sign Out Failed', error.message)
         return
       }
+      showToast.success('Signed out successfully.')
       navigate('/login')
     } catch (requestError) {
-      setAuthError(
+      const msg =
         requestError instanceof Error
           ? requestError.message
-          : 'Unable to sign out. Please try again.',
-      )
+          : 'Unable to sign out. Please try again.'
+      setAuthError(msg)
+      showAlert.error('Sign Out Error', msg)
     }
   }
 
@@ -81,11 +85,6 @@ function Navbar() {
                 }
               >
                 <span>{item.label}</span>
-                {item.label === 'Departments' && isAdmin && (
-                  <span className="rounded bg-[#a81720] px-1 py-0.2 text-[8px] uppercase tracking-wider text-white font-black">
-                    Admin
-                  </span>
-                )}
               </NavLink>
             ))}
           </div>
@@ -96,13 +95,8 @@ function Navbar() {
             </span>
           ) : session?.user ? (
             <div className="flex items-center gap-3 max-[760px]:flex-col max-[760px]:w-[calc(100%-32px)] max-[760px]:mx-auto max-[760px]:mt-3">
-              <span className="text-xs font-semibold text-gray-700 max-[760px]:hidden flex items-center gap-1.5">
-                <span>Hi, {user?.name?.split(' ')[0] || session.user.name?.split(' ')[0] || 'User'}</span>
-                {isAdmin && (
-                  <span className="rounded bg-purple-100 text-purple-800 text-[9px] font-black px-1.5 py-0.5 uppercase">
-                    Admin
-                  </span>
-                )}
+              <span className="text-xs font-semibold text-gray-700 max-[760px]:hidden">
+                Hi, {user?.name?.split(' ')[0] || session.user.name?.split(' ')[0] || 'User'}
               </span>
               <button
                 type="button"
@@ -113,7 +107,7 @@ function Navbar() {
               </button>
             </div>
           ) : (
-            <Link to="/login" className="inline-flex min-h-[38px] items-center justify-center rounded-lg border border-[#dce2eb] px-4 text-[11px] font-bold text-[#42536c] hover:bg-gray-50 transition max-[760px]:mx-auto max-[760px]:mt-3 max-[760px]:w-[calc(100%-32px)]">
+            <Link to="/login" className="bg-[#173b69] hover:bg-[#122a4a] rounded-lg py-2 px-3 text-center text-white text-[12px] font-bold" onClick={() => setMenuOpen(false)}>
               Sign In
             </Link>
           )}

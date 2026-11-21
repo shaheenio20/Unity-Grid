@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { authClient } from "../../../lib/authClient";
 import { useCurrentUser } from "../../../lib/useCurrentUser";
+import Swal, { showAlert, showConfirmDelete } from "../../../lib/alerts";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -101,14 +102,14 @@ const ClubDetails = () => {
       const data = await res.json();
 
       if (data.success) {
-        setFeedback({ text: "Club updated successfully!", type: "success" });
+        setShowEditModal(false);
         await fetchClub();
-        setTimeout(() => setShowEditModal(false), 1000);
+        showAlert.success("Club Updated!", "Club details have been updated successfully.");
       } else {
-        setFeedback({ text: data.message || "Failed to update club.", type: "error" });
+        showAlert.error("Update Failed", data.message || "Failed to update club.");
       }
     } catch {
-      setFeedback({ text: "Error updating club.", type: "error" });
+      showAlert.error("Error", "Error updating club.");
     } finally {
       setFormSubmitting(false);
     }
@@ -120,9 +121,8 @@ const ClubDetails = () => {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to delete club '${club.name}'?`)) {
-      return;
-    }
+    const confirmed = await showConfirmDelete(`club '${club.name}'`);
+    if (!confirmed) return;
 
     try {
       const res = await fetch(`${API_BASE}/api/clubs/${clubId}`, {
@@ -131,12 +131,13 @@ const ClubDetails = () => {
       });
       const data = await res.json();
       if (data.success) {
+        await showAlert.success("Deleted!", `Club '${club.name}' has been deleted.`);
         navigate("/departments");
       } else {
-        alert(data.message || "Failed to delete club.");
+        showAlert.error("Delete Failed", data.message || "Failed to delete club.");
       }
     } catch {
-      alert("Error deleting club.");
+      showAlert.error("Error", "Error deleting club.");
     }
   };
 

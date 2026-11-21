@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { authClient } from "../../../lib/authClient";
 import { useCurrentUser } from "../../../lib/useCurrentUser";
+import Swal, { showAlert, showConfirmDelete } from "../../../lib/alerts";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -133,10 +134,6 @@ const Events = () => {
       const data = await res.json();
 
       if (data.success) {
-        setActionMessage({
-          text: isEdit ? "Event updated successfully!" : "Event created successfully!",
-          type: "success",
-        });
         setEventForm({
           title: "",
           clubId: "",
@@ -148,21 +145,17 @@ const Events = () => {
           banner: "",
         });
         await fetchEvents();
-        setTimeout(() => {
-          setShowEventModal(false);
-          setEditingEventId(null);
-        }, 1000);
+        setShowEventModal(false);
+        setEditingEventId(null);
+        showAlert.success(
+          isEdit ? "Event Updated!" : "Event Published!",
+          isEdit ? "Event details have been updated." : "New event has been published successfully."
+        );
       } else {
-        setActionMessage({
-          text: data.message || "Failed to save event.",
-          type: "error",
-        });
+        showAlert.error("Save Failed", data.message || "Failed to save event.");
       }
     } catch {
-      setActionMessage({
-        text: "Error saving event. Please try again.",
-        type: "error",
-      });
+      showAlert.error("Error", "Error saving event. Please try again.");
     } finally {
       setFormSubmitting(false);
     }
@@ -174,9 +167,8 @@ const Events = () => {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to delete event '${eventTitle}'?`)) {
-      return;
-    }
+    const confirmed = await showConfirmDelete(`event '${eventTitle}'`);
+    if (!confirmed) return;
 
     try {
       const res = await fetch(`${API_BASE}/api/events/${eventId}`, {
@@ -186,11 +178,12 @@ const Events = () => {
       const data = await res.json();
       if (data.success) {
         await fetchEvents();
+        showAlert.success("Deleted!", `Event '${eventTitle}' has been deleted.`);
       } else {
-        alert(data.message || "Failed to delete event.");
+        showAlert.error("Delete Failed", data.message || "Failed to delete event.");
       }
     } catch {
-      alert("Error deleting event.");
+      showAlert.error("Error", "Error deleting event.");
     }
   };
 
@@ -212,22 +205,13 @@ const Events = () => {
       const data = await res.json();
 
       if (data.success) {
-        setActionMessage({
-          text: "You have successfully signed up as a volunteer!",
-          type: "success",
-        });
         fetchEvents();
+        showAlert.success("Signed Up!", "You have successfully signed up as a volunteer for this event!");
       } else {
-        setActionMessage({
-          text: data.message || "Failed to sign up.",
-          type: "error",
-        });
+        showAlert.error("Sign-up Failed", data.message || "Failed to sign up.");
       }
     } catch {
-      setActionMessage({
-        text: "Error signing up. Please try again.",
-        type: "error",
-      });
+      showAlert.error("Error", "Error signing up. Please try again.");
     } finally {
       setVolunteeringId(null);
     }

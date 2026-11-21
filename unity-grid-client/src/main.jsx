@@ -11,6 +11,7 @@ import Register from "./components/pages/Register/Register";
 import Departments from "./components/pages/Departments/Departments";
 import ClubDetails from "./components/pages/Clubs/ClubDetails";
 import Events from "./components/pages/Events/Events";
+import BloodBank from "./components/pages/BloodBank/BloodBank";
 
 const router = createBrowserRouter([
   // Public website routes wrapped with Navbar & Footer
@@ -32,7 +33,7 @@ const router = createBrowserRouter([
       },
       {
         path: "blood",
-        element: <SectionPage section={portalSections.blood} />,
+        element: <BloodBank />,
       },
       {
         path: "crisis",
