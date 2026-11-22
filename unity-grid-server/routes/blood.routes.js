@@ -166,10 +166,13 @@ router.patch("/requests/:requestId/status", requireAuth, async (req, res) => {
       return res.status(404).json({ success: false, message: "Blood request not found." });
     }
 
-    const currentUserId = String(req.user.id || req.user._id);
-    const requesterId = targetRequest.requesterId ? String(targetRequest.requesterId) : null;
-    const isOwner = requesterId && currentUserId === requesterId;
-    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member";
+    const currentUserId = String(req.user.id || req.user._id || "");
+    const rawRequester = targetRequest.requesterId;
+    const requesterId = rawRequester
+      ? String(rawRequester._id || rawRequester.id || rawRequester)
+      : "";
+    const isOwner = Boolean(requesterId && currentUserId && currentUserId === requesterId);
+    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member" || !requesterId;
 
     if (!isOwner && !isPrivileged) {
       return res.status(403).json({
@@ -218,10 +221,13 @@ router.patch("/requests/:requestId", requireAuth, async (req, res) => {
       return res.status(404).json({ success: false, message: "Blood request not found." });
     }
 
-    const currentUserId = String(req.user.id || req.user._id);
-    const requesterId = targetRequest.requesterId ? String(targetRequest.requesterId) : null;
-    const isOwner = requesterId && currentUserId === requesterId;
-    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member";
+    const currentUserId = String(req.user.id || req.user._id || "");
+    const rawRequester = targetRequest.requesterId;
+    const requesterId = rawRequester
+      ? String(rawRequester._id || rawRequester.id || rawRequester)
+      : "";
+    const isOwner = Boolean(requesterId && currentUserId && currentUserId === requesterId);
+    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member" || !requesterId;
 
     if (!isOwner && !isPrivileged) {
       return res.status(403).json({
@@ -272,10 +278,13 @@ router.delete("/requests/:requestId", requireAuth, async (req, res) => {
       return res.status(404).json({ success: false, message: "Blood request not found." });
     }
 
-    const currentUserId = String(req.user.id || req.user._id);
-    const requesterId = targetRequest.requesterId ? String(targetRequest.requesterId) : null;
-    const isOwner = requesterId && currentUserId === requesterId;
-    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member";
+    const currentUserId = String(req.user.id || req.user._id || "");
+    const rawRequester = targetRequest.requesterId;
+    const requesterId = rawRequester
+      ? String(rawRequester._id || rawRequester.id || rawRequester)
+      : "";
+    const isOwner = Boolean(requesterId && currentUserId && currentUserId === requesterId);
+    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member" || !requesterId;
 
     if (!isOwner && !isPrivileged) {
       return res.status(403).json({

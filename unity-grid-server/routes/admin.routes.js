@@ -67,7 +67,7 @@ router.patch("/users/:userId/role", async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.params.userId,
       { $set: { role } },
-      { new: true }
+      { returnDocument: "after" }
     ).select("name email role");
 
     if (!user) {

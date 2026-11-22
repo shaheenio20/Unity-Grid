@@ -112,7 +112,7 @@ router.patch("/:eventId", requireRole(["Admin", "Member"]), async (req, res) => 
     if (endDate !== undefined) updates.endDate = endDate ? new Date(endDate) : null;
 
     const event = await Event.findByIdAndUpdate(req.params.eventId, updates, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     }).populate("clubId", "name code logo");
 

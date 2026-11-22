@@ -138,7 +138,7 @@ router.patch("/:clubId", requireRole(["Admin", "Member"]), async (req, res) => {
     if (logo !== undefined) updates.logo = logo;
 
     const club = await Club.findByIdAndUpdate(req.params.clubId, updates, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     }).populate("departmentId", "name code");
 

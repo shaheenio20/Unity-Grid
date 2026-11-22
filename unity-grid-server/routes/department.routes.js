@@ -94,7 +94,7 @@ router.patch("/:id", requireRole(["Admin"]), async (req, res) => {
     if (headOfDept !== undefined) updates.headOfDept = headOfDept;
 
     const department = await Department.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 

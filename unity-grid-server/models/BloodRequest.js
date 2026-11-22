@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const bloodRequestSchema = new mongoose.Schema(
   {
     requesterId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.Mixed,
       ref: "User",
       required: false,
       default: null,

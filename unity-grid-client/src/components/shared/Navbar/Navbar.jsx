@@ -15,7 +15,7 @@ const navLinks = [
 
 function Navbar() {
   const navigate = useNavigate()
-  const { session, user, isAdmin, loading } = useCurrentUser()
+  const { session, user, loading } = useCurrentUser()
   const [menuOpen, setMenuOpen] = useState(false)
   const [authError, setAuthError] = useState('')
 
@@ -101,7 +101,7 @@ function Navbar() {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="inline-flex min-h-[38px] items-center justify-center rounded-lg border border-[#dce2eb] px-4 text-[11px] font-bold text-[#42536c] hover:bg-gray-50 transition max-[760px]:w-full"
+                className="bg-[#173b69] hover:bg-[#122a4a] rounded-lg py-2 px-3 text-center text-white text-[12px] font-bold"
               >
                 Sign out
               </button>

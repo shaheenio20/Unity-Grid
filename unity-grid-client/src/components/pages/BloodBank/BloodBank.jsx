@@ -21,9 +21,14 @@ import {
   Building2,
   GraduationCap,
   UserRound,
+  Search,
+  Download,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useCurrentUser } from "../../../lib/useCurrentUser";
 import Swal, { showAlert, showConfirmDelete, showToast } from "../../../lib/alerts";
+import sylhetDonorsData from "../../../data/sylhetDonors.json";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const BLOOD_GROUPS = ["All", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -45,6 +50,11 @@ const BloodBank = () => {
   // Modals state
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
+  const [showSylhetModal, setShowSylhetModal] = useState(false);
+  const [sylhetSearch, setSylhetSearch] = useState("");
+  const [sylhetGroupFilter, setSylhetGroupFilter] = useState("All");
+  const [sylhetPage, setSylhetPage] = useState(1);
+  const sylhetPageSize = 25;
   const [editingRequestId, setEditingRequestId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ text: "", type: "" });
@@ -238,7 +248,7 @@ const BloodBank = () => {
     }
   };
 
-  // Update Status (Fulfilled / Cancelled)
+  // Update Status (Fulfilled / Cancelled / Reopen to Pending)
   const handleUpdateStatus = async (requestId, newStatus) => {
     try {
       const res = await fetch(`${API_BASE}/api/blood/requests/${requestId}/status`, {
@@ -250,7 +260,11 @@ const BloodBank = () => {
       const data = await res.json();
       if (data.success) {
         fetchRequests();
-        showToast.success(`Request marked as ${newStatus}!`);
+        showToast.success(
+          newStatus === "Pending"
+            ? "Request reopened and set to Active!"
+            : `Request marked as ${newStatus}!`
+        );
       } else {
         showAlert.error("Status Update Failed", data.message || "Failed to update status.");
       }
@@ -366,6 +380,25 @@ const BloodBank = () => {
       showAlert.error("Error", "Error deleting donor record.");
     }
   };
+
+  // Filtered Sylhet Regional Donors (from Need blood (Sylhet).pdf)
+  const filteredSylhetDonors = sylhetDonorsData.filter((d) => {
+    const matchesGroup =
+      sylhetGroupFilter === "All" || d.bloodGroup === sylhetGroupFilter;
+    const q = sylhetSearch.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      d.name.toLowerCase().includes(q) ||
+      d.location.toLowerCase().includes(q) ||
+      d.phone.includes(q);
+    return matchesGroup && matchesSearch;
+  });
+
+  const totalSylhetPages = Math.ceil(filteredSylhetDonors.length / sylhetPageSize) || 1;
+  const currentSylhetDonors = filteredSylhetDonors.slice(
+    (sylhetPage - 1) * sylhetPageSize,
+    sylhetPage * sylhetPageSize
+  );
 
   // Critical alerts count
   const criticalRequests = requests.filter(
@@ -489,51 +522,74 @@ const BloodBank = () => {
         )}
 
         {/* Navigation & Blood Group Filters */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
-            {/* View Switcher Tabs */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setActiveTab("requests")}
-                className={`rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-2 ${activeTab === "requests"
-                    ? "bg-[#173b69] text-white shadow-sm"
-                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+            {/* View Switcher Tabs + More Donors Button Container */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              {/* Row 1 on mobile: 2 main tabs side-by-side (50% each on mobile) */}
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("requests")}
+                  className={`rounded-xl px-2.5 py-2 sm:px-3.5 sm:py-2 text-[11px] sm:text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                    activeTab === "requests"
+                      ? "bg-[#173b69] text-white shadow-xs"
+                      : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                   }`}
-              >
-                <Droplet size={14} className={activeTab === "requests" ? "text-red-300" : "text-red-500"} />
-                <span>Patients & Requests</span>
-                <span className="rounded-full bg-slate-800/20 px-2 py-0.2 text-[10px] font-black">
-                  {requests.length}
-                </span>
-              </button>
+                >
+                  <Droplet size={13} className={activeTab === "requests" ? "text-red-300" : "text-red-500"} />
+                  <span>Patients & Requests</span>
+                  <span className="rounded-full bg-slate-800/20 px-1.5 py-0.2 text-[9px] sm:text-[10px] font-black">
+                    {requests.length}
+                  </span>
+                </button>
 
-              <button
-                onClick={() => setActiveTab("donors")}
-                className={`rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-2 ${activeTab === "donors"
-                    ? "bg-[#173b69] text-white shadow-sm"
-                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("donors")}
+                  className={`rounded-xl px-2.5 py-2 sm:px-3.5 sm:py-2 text-[11px] sm:text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                    activeTab === "donors"
+                      ? "bg-[#173b69] text-white shadow-xs"
+                      : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                   }`}
+                >
+                  <Users size={13} />
+                  <span>Campus Donors</span>
+                  <span className="rounded-full bg-slate-800/20 px-1.5 py-0.2 text-[9px] sm:text-[10px] font-black">
+                    {donors.length}
+                  </span>
+                </button>
+              </div>
+
+              {/* Row 2 on mobile: More Donors button full-width underneath! */}
+              <button
+                type="button"
+                onClick={() => setShowSylhetModal(true)}
+                className="w-full sm:w-auto rounded-xl px-3.5 py-2 text-[11px] sm:text-xs font-bold transition flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 shadow-2xs"
+                title="Browse 370+ Sylhet Regional Donors from PDF sheet"
               >
-                <Users size={14} />
-                <span>Campus Donors</span>
-                <span className="rounded-full bg-slate-800/20 px-2 py-0.2 text-[10px] font-black">
-                  {donors.length}
+                <Users size={13} className="text-red-600" />
+                <span>More Donors (Sylhet)</span>
+                <span className="rounded-full bg-red-200 text-red-900 px-1.5 py-0.2 text-[9px] sm:text-[10px] font-black">
+                  376
                 </span>
               </button>
             </div>
 
             {/* Request Status Filter (Only in Requests Tab) */}
             {activeTab === "requests" && (
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-400 font-semibold text-[11px]">Status:</span>
+              <div className="flex items-center gap-1.5 text-xs overflow-x-auto py-0.5 shrink-0 self-start md:self-auto">
+                <span className="text-slate-400 font-semibold text-[10px] sm:text-[11px]">Status:</span>
                 {["Pending", "Fulfilled", "All"].map((st) => (
                   <button
                     key={st}
+                    type="button"
                     onClick={() => setStatusFilter(st)}
-                    className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${statusFilter === st
+                    className={`rounded-lg px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-bold transition shrink-0 ${
+                      statusFilter === st
                         ? "bg-slate-800 text-white"
                         : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                      }`}
+                    }`}
                   >
                     {st}
                   </button>
@@ -588,9 +644,9 @@ const BloodBank = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {requests.map((req) => {
                   const currentUserId = String(user?.id || user?._id || session?.user?.id || "");
-                  const requesterId = String(req.requesterId?._id || req.requesterId || "");
+                  const requesterId = String(req.requesterId?._id || req.requesterId?.id || req.requesterId || "");
                   const isOwner = Boolean(currentUserId && requesterId && currentUserId === requesterId);
-                  const canManage = isOwner || isAdmin || isMember;
+                  const canManage = Boolean(session?.user) && (isOwner || isAdmin || isMember || !requesterId);
 
                   return (
                     <div
@@ -618,26 +674,27 @@ const BloodBank = () => {
                           </div>
 
                           <div className="flex flex-col items-end gap-1">
-                            <span
-                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${req.urgency === "Critical"
-                                  ? "bg-red-100 text-red-800 border border-red-300 animate-pulse"
-                                  : req.urgency === "Urgent"
-                                    ? "bg-amber-100 text-amber-800 border border-amber-200"
-                                    : "bg-blue-50 text-blue-800 border border-blue-200"
-                                }`}
-                            >
-                              {req.urgency}
-                            </span>
-                            <span
-                              className={`text-[9px] font-black px-2 py-0.2 rounded-md ${req.status === "Fulfilled"
-                                  ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                                  : req.status === "Cancelled"
-                                    ? "bg-slate-100 text-slate-500"
-                                    : "text-slate-400"
-                                }`}
-                            >
-                              {req.status}
-                            </span>
+                            {req.status === "Pending" ? (
+                              <span
+                                className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${req.urgency === "Critical"
+                                    ? "bg-red-100 text-red-800 border border-red-300 animate-pulse"
+                                    : req.urgency === "Urgent"
+                                      ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                      : "bg-blue-50 text-blue-800 border border-blue-200"
+                                  }`}
+                              >
+                                {req.urgency}
+                              </span>
+                            ) : req.status === "Fulfilled" ? (
+                              <span className="rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-xs">
+                                <CheckCircle2 size={11} className="text-emerald-700" />
+                                <span>Fulfilled</span>
+                              </span>
+                            ) : (
+                              <span className="rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                Cancelled
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -679,49 +736,81 @@ const BloodBank = () => {
 
                       {/* Card Footer: Call Action & Management */}
                       <div className="mt-5 pt-3 border-t border-slate-100 space-y-2">
-                        <a
-                          href={`tel:${req.contactNumber}`}
-                          className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white py-2.5 text-xs font-bold transition shadow-xs"
-                        >
-                          <Phone size={14} /> Call: {req.contactNumber}
-                        </a>
-
-                        {canManage && (
-                          <div className="flex items-center gap-1.5 pt-1">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEditModal(req)}
-                              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 text-xs font-bold transition"
-                              title="Edit blood request"
-                            >
-                              <Pencil size={13} />
-                              <span>Edit</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteRequest(req._id, req.patientName)}
-                              className="rounded-xl px-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-1.5 text-xs font-bold transition flex items-center gap-1"
-                              title="Delete blood request"
-                            >
-                              <Trash2 size={13} />
-                              <span>Delete</span>
-                            </button>
+                        {req.status === "Pending" ? (
+                          <a
+                            href={`tel:${req.contactNumber}`}
+                            className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white py-2.5 text-xs font-bold transition shadow-xs"
+                          >
+                            <Phone size={14} /> Call: {req.contactNumber}
+                          </a>
+                        ) : req.status === "Fulfilled" ? (
+                          <div className="w-full rounded-2xl bg-emerald-50/90 border border-emerald-200 p-2.5 text-center">
+                            <div className="flex items-center justify-center gap-1.5 text-emerald-800 font-bold text-xs">
+                              <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                              <span>Blood Arranged · Request Fulfilled</span>
+                            </div>
+                            <p className="text-[10px] text-emerald-700/80 mt-0.5">
+                              Ref Contact: {req.contactNumber}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="w-full rounded-2xl bg-slate-100 border border-slate-200 p-2.5 text-center text-slate-500 font-bold text-xs">
+                            Request Cancelled
                           </div>
                         )}
 
+                        {/* Actions for PENDING request */}
                         {canManage && req.status === "Pending" && (
-                          <div className="flex items-center gap-2">
+                          <>
+                            <div className="flex items-center gap-1.5 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditModal(req)}
+                                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 text-xs font-bold transition"
+                                title="Edit blood request"
+                              >
+                                <Pencil size={13} />
+                                <span>Edit</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteRequest(req._id, req.patientName)}
+                                className="rounded-xl px-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-1.5 text-xs font-bold transition flex items-center gap-1"
+                                title="Delete blood request"
+                              >
+                                <Trash2 size={13} />
+                                <span>Delete</span>
+                              </button>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleUpdateStatus(req._id, "Fulfilled")}
+                                className="flex-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 py-1.5 text-[11px] font-bold transition"
+                              >
+                                Mark Fulfilled
+                              </button>
+                              <button
+                                onClick={() => handleUpdateStatus(req._id, "Cancelled")}
+                                className="rounded-xl px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 text-[11px] font-bold transition"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Actions for FULFILLED or CANCELLED request (Delete only) */}
+                        {canManage && req.status !== "Pending" && (
+                          <div className="pt-1">
                             <button
-                              onClick={() => handleUpdateStatus(req._id, "Fulfilled")}
-                              className="flex-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 py-1.5 text-[11px] font-bold transition"
+                              type="button"
+                              onClick={() => handleDeleteRequest(req._id, req.patientName)}
+                              className="w-full rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-1.5 text-xs font-bold transition flex items-center justify-center gap-1.5"
+                              title="Delete request"
                             >
-                              Mark Fulfilled
-                            </button>
-                            <button
-                              onClick={() => handleUpdateStatus(req._id, "Cancelled")}
-                              className="rounded-xl px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 text-[11px] font-bold transition"
-                            >
-                              Cancel
+                              <Trash2 size={13} />
+                              <span>Delete</span>
                             </button>
                           </div>
                         )}
@@ -753,13 +842,17 @@ const BloodBank = () => {
                 </div>
               </div>
 
-              <button
-                onClick={handleOpenAddDonorModal}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#173b69] hover:bg-[#122e53] text-white px-4 py-2.5 text-xs font-bold shadow-xs transition shrink-0"
-              >
-                <Plus size={15} />
-                <span>Add Campus Donor</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                
+                <button
+                  type="button"
+                  onClick={handleOpenAddDonorModal}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#173b69] hover:bg-[#122e53] text-white px-4 py-2.5 text-xs font-bold shadow-xs transition"
+                >
+                  <Plus size={15} />
+                  <span>Add Campus Donor</span>
+                </button>
+              </div>
             </div>
 
             {loading ? (
@@ -770,10 +863,26 @@ const BloodBank = () => {
             ) : donors.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-xs">
                 <Users size={40} className="mx-auto text-slate-300 mb-3" />
-                <h3 className="font-bold text-slate-700 text-sm">No Registered Donors Found</h3>
+                <h3 className="font-bold text-slate-700 text-sm">No Campus Donors Registered Yet</h3>
                 <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                  No campus members or students have been added to this blood group yet. Add the first donor below!
+                  No campus students or members are listed for this blood group yet. You can add one, or browse 370+ donors from the Sylhet Regional Directory!
                 </p>
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowSylhetModal(true)}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-red-700 transition"
+                  >
+                    <Users size={14} /> View 370+ Sylhet Donors
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenAddDonorModal}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#173b69] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#122e53] transition"
+                  >
+                    <Plus size={14} /> Add Campus Donor
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -1309,6 +1418,240 @@ const BloodBank = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ──────────────── MODAL 3: MORE DONORS (SYLHET REGIONAL DIRECTORY) ──────────────── */}
+      {showSylhetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/75 backdrop-blur-xs overflow-hidden">
+          <div className="w-full max-w-5xl rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden my-auto max-h-[96vh] sm:max-h-[92vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div className="size-8 sm:size-10 rounded-xl sm:rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                  <Users size={18} className="sm:size-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <h3 className="text-xs sm:text-base font-black text-slate-800 truncate">
+                      Sylhet Donors Directory
+                    </h3>
+                    <span className="rounded-full bg-red-100 text-red-800 text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.2 border border-red-200 shrink-0">
+                      {filteredSylhetDonors.length}
+                    </span>
+                  </div>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">
+                    Voluntary donor sheet from Sylhet district
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <a
+                  href="/Need-blood-Sylhet.pdf"
+                  download="Need-blood-Sylhet.pdf"
+                  className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[11px] sm:text-xs font-bold text-slate-700 shadow-2xs transition"
+                  title="Download offline PDF document"
+                >
+                  <Download size={13} className="text-red-600" />
+                  <span className="hidden xs:inline">PDF</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setShowSylhetModal(false)}
+                  className="rounded-xl p-1 sm:p-1.5 text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 transition"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="p-3 sm:p-4 border-b border-slate-100 bg-white space-y-2.5 shrink-0">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                {/* Search input */}
+                <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-xl px-2.5 sm:px-3 h-9 sm:h-10 bg-slate-50 focus-within:bg-white focus-within:border-red-600 transition">
+                  <Search size={14} className="text-slate-400 shrink-0" />
+                  <input
+                    type="text"
+                    value={sylhetSearch}
+                    onChange={(e) => {
+                      setSylhetSearch(e.target.value);
+                      setSylhetPage(1);
+                    }}
+                    placeholder="Search name, area, phone (e.g. Golapgonj, 017...)"
+                    className="w-full bg-transparent outline-none text-[11px] sm:text-xs text-slate-800 placeholder:text-slate-400"
+                  />
+                  {sylhetSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setSylhetSearch("")}
+                      className="text-slate-400 hover:text-slate-600 text-[10px] sm:text-xs font-bold"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {/* Quick count info */}
+                <div className="text-[11px] sm:text-xs text-slate-500 font-bold shrink-0 flex items-center justify-between sm:justify-start gap-1">
+                  <span>Filtered Donors:</span>
+                  <span className="text-red-600 font-black">{filteredSylhetDonors.length}</span>
+                </div>
+              </div>
+
+              {/* Blood group pills - responsive scrolling on mobile */}
+              <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                {BLOOD_GROUPS.map((group) => (
+                  <button
+                    key={group}
+                    type="button"
+                    onClick={() => {
+                      setSylhetGroupFilter(group);
+                      setSylhetPage(1);
+                    }}
+                    className={`px-2.5 py-1 sm:px-3 sm:py-1 rounded-xl text-[10px] sm:text-xs font-bold transition shrink-0 ${
+                      sylhetGroupFilter === group
+                        ? "bg-red-600 text-white shadow-2xs"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {group}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Content Container: Mobile Cards + Desktop Table */}
+            <div className="flex-1 overflow-y-auto p-3 sm:p-5">
+              {currentSylhetDonors.length === 0 ? (
+                <div className="py-12 text-center text-slate-400">
+                  <Users size={32} className="mx-auto text-slate-300 mb-2" />
+                  <p className="text-xs font-bold text-slate-600">No Sylhet donors matched your search</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Try searching for a different area or blood group</p>
+                </div>
+              ) : (
+                <>
+                  {/* MOBILE VIEW (Screens < 640px): Clean Cards */}
+                  <div className="block sm:hidden space-y-2">
+                    {currentSylhetDonors.map((donor, idx) => {
+                      const serial = (sylhetPage - 1) * sylhetPageSize + idx + 1;
+                      return (
+                        <div
+                          key={donor.id || serial}
+                          className="p-3 rounded-2xl border border-slate-200/90 bg-white shadow-2xs flex items-center justify-between gap-2.5"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="size-6 rounded-lg bg-red-50 text-red-700 font-black text-[10px] flex items-center justify-center border border-red-200 shrink-0">
+                                {donor.bloodGroup}
+                              </span>
+                              <p className="font-bold text-xs text-slate-800 truncate">
+                                {donor.name}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-1 truncate">
+                              <MapPin size={11} className="text-slate-400 shrink-0" />
+                              <span className="truncate">{donor.location}</span>
+                            </div>
+                          </div>
+
+                          <a
+                            href={`tel:${donor.phone}`}
+                            className="inline-flex items-center justify-center gap-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 text-[11px] font-bold shadow-xs shrink-0 transition"
+                          >
+                            <Phone size={12} />
+                            <span>Call</span>
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* DESKTOP VIEW (Screens >= 640px): Full Table */}
+                  <div className="hidden sm:block overflow-x-auto rounded-2xl border border-slate-200">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-black text-[11px] uppercase tracking-wider">
+                          <th className="py-3 px-3.5">#</th>
+                          <th className="py-3 px-3.5">Donor Name</th>
+                          <th className="py-3 px-3.5">Group</th>
+                          <th className="py-3 px-3.5">Location / Area</th>
+                          <th className="py-3 px-3.5 text-right">Emergency Contact</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-slate-700">
+                        {currentSylhetDonors.map((donor, idx) => {
+                          const serial = (sylhetPage - 1) * sylhetPageSize + idx + 1;
+                          return (
+                            <tr key={donor.id || serial} className="hover:bg-slate-50/80 transition">
+                              <td className="py-2.5 px-3.5 text-slate-400 font-mono text-[11px]">
+                                {serial}
+                              </td>
+                              <td className="py-2.5 px-3.5 font-bold text-slate-800">
+                                {donor.name}
+                              </td>
+                              <td className="py-2.5 px-3.5">
+                                <span className="inline-flex items-center justify-center size-7 rounded-lg bg-red-50 text-red-700 font-black text-xs border border-red-200">
+                                  {donor.bloodGroup}
+                                </span>
+                              </td>
+                              <td className="py-2.5 px-3.5 text-slate-600">
+                                <span className="inline-flex items-center gap-1">
+                                  <MapPin size={12} className="text-slate-400 shrink-0" />
+                                  {donor.location}
+                                </span>
+                              </td>
+                              <td className="py-2.5 px-3.5 text-right">
+                                <a
+                                  href={`tel:${donor.phone}`}
+                                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-xs font-bold transition shadow-xs"
+                                >
+                                  <Phone size={12} />
+                                  <span>Call ({donor.phone})</span>
+                                </a>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Modal Pagination Footer */}
+            <div className="px-4 py-2.5 sm:px-6 sm:py-3 border-t border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-slate-600 shrink-0">
+              <div>
+                Showing {(sylhetPage - 1) * sylhetPageSize + 1} -{" "}
+                {Math.min(sylhetPage * sylhetPageSize, filteredSylhetDonors.length)} of{" "}
+                {filteredSylhetDonors.length} donors
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={sylhetPage <= 1}
+                  onClick={() => setSylhetPage((p) => Math.max(1, p - 1))}
+                  className="rounded-lg border border-slate-200 px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-bold hover:bg-white disabled:opacity-40 transition flex items-center gap-1"
+                >
+                  <ChevronLeft size={13} /> Prev
+                </button>
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-700">
+                  Page {sylhetPage} of {totalSylhetPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={sylhetPage >= totalSylhetPages}
+                  onClick={() => setSylhetPage((p) => Math.min(totalSylhetPages, p + 1))}
+                  className="rounded-lg border border-slate-200 px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-bold hover:bg-white disabled:opacity-40 transition flex items-center gap-1"
+                >
+                  Next <ChevronRight size={13} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
