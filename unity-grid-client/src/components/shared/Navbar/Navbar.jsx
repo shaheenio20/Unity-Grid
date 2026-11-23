@@ -79,8 +79,7 @@ function Navbar() {
                 to={item.to}
                 onClick={() => setMenuOpen(false)}
                 className={({ isActive }) =>
-                  `whitespace-nowrap py-2 text-[11px] font-semibold transition hover:text-[#173b69] max-[760px]:border-b max-[760px]:border-[#eef1f5] max-[760px]:py-3 max-[760px]:text-xs flex items-center gap-1 ${
-                    isActive ? 'font-bold text-[#a81720]' : 'text-[#56647a]'
+                  `whitespace-nowrap py-2 text-[11px] font-semibold transition hover:text-[#173b69] max-[760px]:border-b max-[760px]:border-[#eef1f5] max-[760px]:py-3 max-[760px]:text-xs flex items-center gap-1 ${isActive ? 'font-bold text-[#a81720]' : 'text-[#56647a]'
                   }`
                 }
               >
@@ -94,20 +93,24 @@ function Navbar() {
               Checking session...
             </span>
           ) : session?.user ? (
-            <div className="flex items-center gap-3 max-[760px]:flex-col max-[760px]:w-[calc(100%-32px)] max-[760px]:mx-auto max-[760px]:mt-3">
+            <div className="flex items-center gap-3 max-[760px]:flex-col max-[760px]:w-full max-[760px]:mt-3">
               <span className="text-xs font-semibold text-gray-700 max-[760px]:hidden">
                 Hi, {user?.name?.split(' ')[0] || session.user.name?.split(' ')[0] || 'User'}
               </span>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="bg-[#173b69] hover:bg-[#122a4a] rounded-lg py-2 px-3 text-center text-white text-[12px] font-bold"
+                className="w-full sm:w-auto bg-[#173b69] hover:bg-[#122a4a] rounded-lg py-2 px-3 text-center text-white text-[12px] font-bold transition"
               >
                 Sign out
               </button>
             </div>
           ) : (
-            <Link to="/login" className="bg-[#173b69] hover:bg-[#122a4a] rounded-lg py-2 px-3 text-center text-white text-[12px] font-bold" onClick={() => setMenuOpen(false)}>
+            <Link
+              to="/login"
+              className="w-full sm:w-auto bg-[#173b69] hover:bg-[#122a4a] rounded-lg py-2 px-3 text-center text-white text-[12px] font-bold block transition max-[760px]:mt-3"
+              onClick={() => setMenuOpen(false)}
+            >
               Sign In
             </Link>
           )}

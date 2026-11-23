@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   HeartHandshake,
   Droplet,
   Phone,
-  Calendar,
   MapPin,
   Clock,
   AlertTriangle,
@@ -12,10 +11,7 @@ import {
   X,
   Plus,
   Filter,
-  ShieldCheck,
   Users,
-  Activity,
-  Sparkles,
   Pencil,
   Trash2,
   Building2,
@@ -27,7 +23,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useCurrentUser } from "../../../lib/useCurrentUser";
-import Swal, { showAlert, showConfirmDelete, showToast } from "../../../lib/alerts";
+import { showAlert, showConfirmDelete, showToast } from "../../../lib/alerts";
 import sylhetDonorsData from "../../../data/sylhetDonors.json";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -149,15 +145,23 @@ const BloodBank = () => {
     loadAll();
   }, [selectedGroup, statusFilter]);
 
-  // Open Modal for Create
+  // Open Modal for Create (Admin Only)
   const handleOpenCreateModal = () => {
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can create or post blood requests.");
+      return;
+    }
     setEditingRequestId(null);
     setRequestForm(initialRequestForm);
     setShowRequestModal(true);
   };
 
-  // Open Modal for Edit
+  // Open Modal for Edit (Admin Only)
   const handleOpenEditModal = (req) => {
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can edit blood requests.");
+      return;
+    }
     setEditingRequestId(req._id);
     let formattedDate = "";
     if (req.requiredDate) {
@@ -182,9 +186,13 @@ const BloodBank = () => {
     setShowRequestModal(true);
   };
 
-  // Submit or Update Blood Request
+  // Submit or Update Blood Request (Admin Only)
   const handleSaveRequest = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can save or update blood requests.");
+      return;
+    }
     setSubmitting(true);
     try {
       const isEditing = Boolean(editingRequestId);
@@ -224,8 +232,12 @@ const BloodBank = () => {
     }
   };
 
-  // Delete Blood Request
+  // Delete Blood Request (Admin Only)
   const handleDeleteRequest = async (requestId, patientName) => {
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can delete blood requests.");
+      return;
+    }
     const confirmed = await showConfirmDelete(
       `the blood request for ${patientName || "this patient"}`
     );
@@ -248,8 +260,12 @@ const BloodBank = () => {
     }
   };
 
-  // Update Status (Fulfilled / Cancelled / Reopen to Pending)
+  // Update Status (Fulfilled / Cancelled / Reopen - Admin Only)
   const handleUpdateStatus = async (requestId, newStatus) => {
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can update blood request status.");
+      return;
+    }
     try {
       const res = await fetch(`${API_BASE}/api/blood/requests/${requestId}/status`, {
         method: "PATCH",
@@ -273,14 +289,10 @@ const BloodBank = () => {
     }
   };
 
-  // Open Modal to Newly Add a Member or Student Donor
+  // Open Modal to Newly Add a Member or Student Donor (Admin Only)
   const handleOpenAddDonorModal = () => {
-    if (!session?.user) {
-      showAlert.info(
-        "Sign In Required",
-        "Please sign in with your account to add a new student or member as a donor."
-      );
-      navigate("/login", { state: { from: "/blood" } });
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can add or register campus donors.");
       return;
     }
     setEditingDonorId(null);
@@ -288,8 +300,12 @@ const BloodBank = () => {
     setShowDonationModal(true);
   };
 
-  // Open Modal to Edit an Existing Donor
+  // Open Modal to Edit an Existing Donor (Admin Only)
   const handleOpenEditDonorModal = (donor) => {
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can edit campus donors.");
+      return;
+    }
     setEditingDonorId(donor._id);
     let formattedDate = "";
     if (donor.lastDonatedAt) {
@@ -311,15 +327,11 @@ const BloodBank = () => {
     setShowDonationModal(true);
   };
 
-  // Submit Campus Donation Form (Create or Update Donor Record)
+  // Submit Campus Donation Form (Create or Update Donor Record - Admin Only)
   const handleSaveDonor = async (e) => {
     e.preventDefault();
-    if (!session?.user) {
-      showAlert.warning(
-        "Sign In Required",
-        "Please sign in with your Student or Member account to submit the Campus Donation Form."
-      );
-      navigate("/login", { state: { from: "/blood" } });
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can add or edit campus donors.");
       return;
     }
 
@@ -359,8 +371,12 @@ const BloodBank = () => {
     }
   };
 
-  // Delete Donor Record
+  // Delete Donor Record (Admin Only)
   const handleDeleteDonor = async (donorId, donorName) => {
+    if (!isAdmin) {
+      showAlert.error("Admin Only", "Only administrators can delete campus donors.");
+      return;
+    }
     const confirmed = await showConfirmDelete(`donor '${donorName || "this donor"}'`);
     if (!confirmed) return;
 
@@ -426,22 +442,24 @@ const BloodBank = () => {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={handleOpenCreateModal}
-                className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 text-xs font-black shadow-lg shadow-red-900/40 transition active:scale-95"
-              >
-                <Plus size={16} /> Request Blood
-              </button>
+            {isAdmin && (
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleOpenCreateModal}
+                  className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 text-xs font-black shadow-lg shadow-red-900/40 transition active:scale-95"
+                >
+                  <Plus size={16} /> Request Blood
+                </button>
 
-              <button
-                onClick={handleOpenAddDonorModal}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 text-xs font-bold border border-white/20 backdrop-blur-xs transition"
-              >
-                <HeartHandshake size={16} />
-                <span>Add Campus Donor</span>
-              </button>
-            </div>
+                <button
+                  onClick={handleOpenAddDonorModal}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 text-xs font-bold border border-white/20 backdrop-blur-xs transition"
+                >
+                  <HeartHandshake size={16} />
+                  <span>Add Campus Donor</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Quick Metrics KPI Bar */}
@@ -633,20 +651,19 @@ const BloodBank = () => {
                 <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
                   There are currently no blood requests matching your selected filter. All data is fetched live from the campus database.
                 </p>
-                <button
-                  onClick={handleOpenCreateModal}
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-red-700 transition"
-                >
-                  <Plus size={14} /> Post a Blood Request
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={handleOpenCreateModal}
+                    className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-red-700 transition"
+                  >
+                    <Plus size={14} /> Post a Blood Request
+                  </button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {requests.map((req) => {
-                  const currentUserId = String(user?.id || user?._id || session?.user?.id || "");
-                  const requesterId = String(req.requesterId?._id || req.requesterId?.id || req.requesterId || "");
-                  const isOwner = Boolean(currentUserId && requesterId && currentUserId === requesterId);
-                  const canManage = Boolean(session?.user) && (isOwner || isAdmin || isMember || !requesterId);
+                  const canManage = Boolean(isAdmin);
 
                   return (
                     <div
@@ -842,17 +859,18 @@ const BloodBank = () => {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 shrink-0">
-                
-                <button
-                  type="button"
-                  onClick={handleOpenAddDonorModal}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#173b69] hover:bg-[#122e53] text-white px-4 py-2.5 text-xs font-bold shadow-xs transition"
-                >
-                  <Plus size={15} />
-                  <span>Add Campus Donor</span>
-                </button>
-              </div>
+              {isAdmin && (
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleOpenAddDonorModal}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#173b69] hover:bg-[#122e53] text-white px-4 py-2.5 text-xs font-bold shadow-xs transition"
+                  >
+                    <Plus size={15} />
+                    <span>Add Campus Donor</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {loading ? (
@@ -875,24 +893,21 @@ const BloodBank = () => {
                   >
                     <Users size={14} /> View 370+ Sylhet Donors
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleOpenAddDonorModal}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#173b69] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#122e53] transition"
-                  >
-                    <Plus size={14} /> Add Campus Donor
-                  </button>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={handleOpenAddDonorModal}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#173b69] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#122e53] transition"
+                    >
+                      <Plus size={14} /> Add Campus Donor
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {donors.map((donor) => {
-                  const currentUserId = String(user?.id || user?._id || session?.user?.id || "");
-                  const addedById = String(donor.addedBy?._id || donor.addedBy || "");
-                  const canManageDonor =
-                    Boolean(currentUserId && addedById && currentUserId === addedById) ||
-                    isAdmin ||
-                    isMember;
+                  const canManageDonor = Boolean(isAdmin);
 
                   return (
                     <div

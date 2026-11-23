@@ -4,7 +4,7 @@ import { auth } from "../config/betterAuth.js";
 import { BloodRequest } from "../models/BloodRequest.js";
 import { User } from "../models/User.js";
 import { Donor } from "../models/Donor.js";
-import { requireAuth } from "../middleware/requireRole.js";
+import { requireAuth, requireRole } from "../middleware/requireRole.js";
 
 const router = express.Router();
 const COOLDOWN_DAYS = 90;
@@ -85,8 +85,8 @@ router.get("/requests", async (req, res) => {
   }
 });
 
-// 2. POST /api/blood/requests (Public / Guest & Authenticated)
-router.post("/requests", async (req, res) => {
+// 2. POST /api/blood/requests (Admin Only - Post Emergency Blood Request)
+router.post("/requests", requireRole(["Admin"]), async (req, res) => {
   try {
     const {
       patientName,
@@ -107,17 +107,7 @@ router.post("/requests", async (req, res) => {
       });
     }
 
-    let requesterId = null;
-    try {
-      const session = await auth.api.getSession({
-        headers: fromNodeHeaders(req.headers),
-      });
-      if (session?.user) {
-        requesterId = session.user.id || session.user._id;
-      }
-    } catch {
-      // Guest submission (no active session)
-    }
+    const requesterId = req.user.id || req.user._id || null;
 
     const newRequest = await BloodRequest.create({
       requesterId,
@@ -148,8 +138,8 @@ router.post("/requests", async (req, res) => {
   }
 });
 
-// 3. PATCH /api/blood/requests/:requestId/status (Admin, Member, or Request Creator)
-router.patch("/requests/:requestId/status", requireAuth, async (req, res) => {
+// 3. PATCH /api/blood/requests/:requestId/status (Admin Only - Mark Fulfilled / Cancelled)
+router.patch("/requests/:requestId/status", requireRole(["Admin"]), async (req, res) => {
   try {
     const { requestId } = req.params;
     const { status } = req.body;
@@ -164,21 +154,6 @@ router.patch("/requests/:requestId/status", requireAuth, async (req, res) => {
     const targetRequest = await BloodRequest.findById(requestId);
     if (!targetRequest) {
       return res.status(404).json({ success: false, message: "Blood request not found." });
-    }
-
-    const currentUserId = String(req.user.id || req.user._id || "");
-    const rawRequester = targetRequest.requesterId;
-    const requesterId = rawRequester
-      ? String(rawRequester._id || rawRequester.id || rawRequester)
-      : "";
-    const isOwner = Boolean(requesterId && currentUserId && currentUserId === requesterId);
-    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member" || !requesterId;
-
-    if (!isOwner && !isPrivileged) {
-      return res.status(403).json({
-        success: false,
-        message: "Forbidden: You do not have permission to update this request status.",
-      });
     }
 
     targetRequest.status = status;
@@ -199,8 +174,8 @@ router.patch("/requests/:requestId/status", requireAuth, async (req, res) => {
   }
 });
 
-// 4. PATCH /api/blood/requests/:requestId (Full Update/Edit - Admin, Member, or Creator)
-router.patch("/requests/:requestId", requireAuth, async (req, res) => {
+// 4. PATCH /api/blood/requests/:requestId (Admin Only - Full Update/Edit)
+router.patch("/requests/:requestId", requireRole(["Admin"]), async (req, res) => {
   try {
     const { requestId } = req.params;
     const {
@@ -219,21 +194,6 @@ router.patch("/requests/:requestId", requireAuth, async (req, res) => {
     const targetRequest = await BloodRequest.findById(requestId);
     if (!targetRequest) {
       return res.status(404).json({ success: false, message: "Blood request not found." });
-    }
-
-    const currentUserId = String(req.user.id || req.user._id || "");
-    const rawRequester = targetRequest.requesterId;
-    const requesterId = rawRequester
-      ? String(rawRequester._id || rawRequester.id || rawRequester)
-      : "";
-    const isOwner = Boolean(requesterId && currentUserId && currentUserId === requesterId);
-    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member" || !requesterId;
-
-    if (!isOwner && !isPrivileged) {
-      return res.status(403).json({
-        success: false,
-        message: "Forbidden: You do not have permission to edit this request.",
-      });
     }
 
     if (patientName) targetRequest.patientName = patientName.trim();
@@ -268,29 +228,14 @@ router.patch("/requests/:requestId", requireAuth, async (req, res) => {
   }
 });
 
-// 5. DELETE /api/blood/requests/:requestId (Delete - Admin, Member, or Creator)
-router.delete("/requests/:requestId", requireAuth, async (req, res) => {
+// 5. DELETE /api/blood/requests/:requestId (Admin Only - Delete Blood Request)
+router.delete("/requests/:requestId", requireRole(["Admin"]), async (req, res) => {
   try {
     const { requestId } = req.params;
 
     const targetRequest = await BloodRequest.findById(requestId);
     if (!targetRequest) {
       return res.status(404).json({ success: false, message: "Blood request not found." });
-    }
-
-    const currentUserId = String(req.user.id || req.user._id || "");
-    const rawRequester = targetRequest.requesterId;
-    const requesterId = rawRequester
-      ? String(rawRequester._id || rawRequester.id || rawRequester)
-      : "";
-    const isOwner = Boolean(requesterId && currentUserId && currentUserId === requesterId);
-    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member" || !requesterId;
-
-    if (!isOwner && !isPrivileged) {
-      return res.status(403).json({
-        success: false,
-        message: "Forbidden: You do not have permission to delete this request.",
-      });
     }
 
     await BloodRequest.findByIdAndDelete(requestId);
@@ -348,8 +293,8 @@ router.get("/donors", async (req, res) => {
   }
 });
 
-// 5. POST /api/blood/donors (Authenticated - Newly add a Member or Student as a donor)
-router.post("/donors", requireAuth, async (req, res) => {
+// 5. POST /api/blood/donors (Admin Only - Newly add a Member or Student as a donor)
+router.post("/donors", requireRole(["Admin"]), async (req, res) => {
   try {
     const {
       name,
@@ -407,8 +352,8 @@ router.post("/donors", requireAuth, async (req, res) => {
   }
 });
 
-// 6. PATCH /api/blood/donors/:donorId (Authenticated - Edit donor details)
-router.patch("/donors/:donorId", requireAuth, async (req, res) => {
+// 6. PATCH /api/blood/donors/:donorId (Admin Only - Edit donor details)
+router.patch("/donors/:donorId", requireRole(["Admin"]), async (req, res) => {
   try {
     const { donorId } = req.params;
     const {
@@ -425,15 +370,6 @@ router.patch("/donors/:donorId", requireAuth, async (req, res) => {
     const donor = await Donor.findById(donorId);
     if (!donor) {
       return res.status(404).json({ success: false, message: "Donor not found." });
-    }
-
-    const currentUserId = String(req.user.id || req.user._id);
-    const addedById = donor.addedBy ? String(donor.addedBy) : null;
-    const isOwner = addedById && currentUserId === addedById;
-    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member";
-
-    if (!isOwner && !isPrivileged) {
-      return res.status(403).json({ success: false, message: "Forbidden: You cannot edit this donor." });
     }
 
     if (name) donor.name = name.trim();
@@ -472,22 +408,13 @@ router.patch("/donors/:donorId", requireAuth, async (req, res) => {
   }
 });
 
-// 7. DELETE /api/blood/donors/:donorId (Authenticated - Delete donor)
-router.delete("/donors/:donorId", requireAuth, async (req, res) => {
+// 7. DELETE /api/blood/donors/:donorId (Admin Only - Delete donor)
+router.delete("/donors/:donorId", requireRole(["Admin"]), async (req, res) => {
   try {
     const { donorId } = req.params;
     const donor = await Donor.findById(donorId);
     if (!donor) {
       return res.status(404).json({ success: false, message: "Donor not found." });
-    }
-
-    const currentUserId = String(req.user.id || req.user._id);
-    const addedById = donor.addedBy ? String(donor.addedBy) : null;
-    const isOwner = addedById && currentUserId === addedById;
-    const isPrivileged = req.user.role === "Admin" || req.user.role === "Member";
-
-    if (!isOwner && !isPrivileged) {
-      return res.status(403).json({ success: false, message: "Forbidden: You cannot delete this donor." });
     }
 
     await Donor.findByIdAndDelete(donorId);
@@ -502,8 +429,8 @@ router.delete("/donors/:donorId", requireAuth, async (req, res) => {
   }
 });
 
-// 8. POST /api/blood/register-donor (Alias for adding/registering donor)
-router.post("/register-donor", requireAuth, async (req, res) => {
+// 8. POST /api/blood/register-donor (Admin Only - Alias for adding/registering donor)
+router.post("/register-donor", requireRole(["Admin"]), async (req, res) => {
   try {
     const {
       name,
@@ -552,8 +479,8 @@ router.post("/register-donor", requireAuth, async (req, res) => {
   }
 });
 
-// 6. POST /api/blood/log-donation (Authenticated - Logs recent donation date & updates cooldown)
-router.post("/log-donation", requireAuth, async (req, res) => {
+// 9. POST /api/blood/log-donation (Admin Only - Logs recent donation date & updates cooldown)
+router.post("/log-donation", requireRole(["Admin"]), async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
     const { donationDate, bloodGroup, phone, isAvailableForDonation } = req.body;
