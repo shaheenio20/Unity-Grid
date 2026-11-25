@@ -16,8 +16,8 @@ import {
   CheckCircle2,
   ChevronRight,
   Award,
+  Receipt,
 } from "lucide-react";
-import heroImage from "../../assets/hero.png";
 import sylhetDonorsData from "../../data/sylhetDonors.json";
 import { useCurrentUser } from "../../lib/useCurrentUser";
 
@@ -31,6 +31,20 @@ function Home() {
   const [events, setEvents] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [clubs, setClubs] = useState([]);
+  const [campusDonorsCount, setCampusDonorsCount] = useState(0);
+  const [crisisTickets, setCrisisTickets] = useState([]);
+  const [ledgerSummary, setLedgerSummary] = useState({
+    totalDonations: 0,
+    totalExpenses: 0,
+    balance: 0,
+    donationsCount: 0,
+    expensesCount: 0,
+  });
+  const [systemSetting, setSystemSetting] = useState({
+    isCrisisModeActive: true,
+    crisisTitle: "Sylhet Regional Flood Relief Operation",
+    emergencyHotline: "01792345238",
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,10 +52,22 @@ function Home() {
       try {
         setLoading(true);
 
-        const [requestsRes, eventsRes, deptsRes] = await Promise.allSettled([
+        const [
+          requestsRes,
+          eventsRes,
+          deptsRes,
+          donorsRes,
+          crisisRes,
+          ledgerRes,
+          systemRes,
+        ] = await Promise.allSettled([
           fetch(`${API_BASE}/api/blood/requests`),
           fetch(`${API_BASE}/api/events`),
           fetch(`${API_BASE}/api/departments`),
+          fetch(`${API_BASE}/api/blood/donors`),
+          fetch(`${API_BASE}/api/crisis/tickets`),
+          fetch(`${API_BASE}/api/ledger/summary`),
+          fetch(`${API_BASE}/api/system/mode`),
         ]);
 
         // Process Blood Requests
@@ -52,11 +78,43 @@ function Home() {
           }
         }
 
+        // Process Campus Donors Count
+        if (donorsRes.status === "fulfilled" && donorsRes.value.ok) {
+          const donorsData = await donorsRes.value.json();
+          if (donorsData.success && Array.isArray(donorsData.donors)) {
+            setCampusDonorsCount(donorsData.donors.length);
+          }
+        }
+
         // Process Events
         if (eventsRes.status === "fulfilled" && eventsRes.value.ok) {
           const evData = await eventsRes.value.json();
           if (evData.success && Array.isArray(evData.events)) {
             setEvents(evData.events);
+          }
+        }
+
+        // Process Crisis Tickets
+        if (crisisRes.status === "fulfilled" && crisisRes.value.ok) {
+          const cData = await crisisRes.value.json();
+          if (cData.success && Array.isArray(cData.tickets)) {
+            setCrisisTickets(cData.tickets);
+          }
+        }
+
+        // Process Ledger Summary
+        if (ledgerRes.status === "fulfilled" && ledgerRes.value.ok) {
+          const lData = await ledgerRes.value.json();
+          if (lData.success && lData.summary) {
+            setLedgerSummary(lData.summary);
+          }
+        }
+
+        // Process System Setting
+        if (systemRes.status === "fulfilled" && systemRes.value.ok) {
+          const sData = await systemRes.value.json();
+          if (sData.success && sData.setting) {
+            setSystemSetting(sData.setting);
           }
         }
 
@@ -106,11 +164,11 @@ function Home() {
   // Featured 3 clubs
   const showcaseClubs = clubs.slice(0, 3);
 
-  // Dynamic Metrics
-  const totalDonorsCount = 376 + 25; // 376 Sylhet + campus registered
+  // Dynamic Metrics - 100% Real
+  const totalDonorsCount = sylhetDonorsData.length + campusDonorsCount;
   const activeRequestsCount = activeRequests.length;
-  const totalClubsCount = clubs.length || 3;
-  const totalEventsCount = events.length || 3;
+  const totalClubsCount = clubs.length;
+  const totalEventsCount = events.length;
 
   return (
     <main className="bg-[#f8fafc] text-slate-800 font-sans pb-24">
@@ -328,11 +386,10 @@ function Home() {
             showcaseRequests.map((req) => (
               <div
                 key={req._id}
-                className={`rounded-2xl border bg-white p-5 shadow-xs transition hover:shadow-md flex flex-col justify-between ${
-                  req.urgency === "Critical" && req.status === "Pending"
+                className={`rounded-2xl border bg-white p-5 shadow-xs transition hover:shadow-md flex flex-col justify-between ${req.urgency === "Critical" && req.status === "Pending"
                     ? "border-red-300 ring-2 ring-red-500/10"
                     : "border-slate-200"
-                }`}
+                  }`}
               >
                 <div>
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -340,13 +397,12 @@ function Home() {
                       {req.bloodGroup}
                     </span>
                     <span
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase ${
-                        req.status === "Fulfilled"
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase ${req.status === "Fulfilled"
                           ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
                           : req.urgency === "Critical"
-                          ? "bg-red-100 text-red-800 border border-red-300 animate-pulse"
-                          : "bg-amber-100 text-amber-800 border border-amber-200"
-                      }`}
+                            ? "bg-red-100 text-red-800 border border-red-300 animate-pulse"
+                            : "bg-amber-100 text-amber-800 border border-amber-200"
+                        }`}
                     >
                       {req.status === "Fulfilled" ? "Fulfilled" : req.urgency}
                     </span>
@@ -439,11 +495,10 @@ function Home() {
                       {ev.clubId?.code || "Campus Event"}
                     </span>
                     <span
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase ${
-                        ev.status === "Upcoming"
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase ${ev.status === "Upcoming"
                           ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
                           : "bg-slate-100 text-slate-600 border border-slate-200"
-                      }`}
+                        }`}
                     >
                       {ev.status || "Upcoming"}
                     </span>
@@ -574,7 +629,140 @@ function Home() {
         </div>
       </section>
 
-      {/* ──────────────── 6. HOW UNITYGRID EMPOWERS CAMPUS ──────────────── */}
+      {/* ──────────────── 6. CRISIS & RELIEF TRANSPARENCY HUB ──────────────── */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-14">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Card 1: Emergency Flood & Crisis SOS Hub */}
+          <div className="relative overflow-hidden rounded-2xl border border-rose-200/80 bg-gradient-to-br from-white via-rose-50/20 to-rose-100/30 p-6 shadow-xs hover:shadow-md transition">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="size-11 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                  <AlertTriangle size={22} className="animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200">
+                      <span className="size-1.5 rounded-full bg-rose-600 animate-ping" />
+                      Live Response
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-500">Sylhet Zone</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 mt-1">
+                    Emergency Flood & Crisis SOS Hub
+                  </h3>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Real-time campus & community disaster coordination. Submit rescue alerts, parse unstructured social media posts with AI, and track field dispatch.
+            </p>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 p-3 rounded-xl bg-white/80 border border-rose-100 backdrop-blur-xs">
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400">Active SOS Tickets</span>
+                <p className="text-lg font-black text-rose-600">
+                  {crisisTickets.filter((t) => t.status === "Open" || t.status === "In_Progress").length}
+                  <span className="text-xs font-normal text-slate-500 ml-1">Open</span>
+                </p>
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400">Emergency Helpline</span>
+                <a
+                  href={`tel:${systemSetting?.emergencyHotline || "01792345238"}`}
+                  className="text-xs sm:text-sm font-bold text-slate-800 hover:text-rose-600 flex items-center gap-1 mt-1 transition"
+                >
+                  <Phone size={13} className="text-rose-500 shrink-0" />
+                  {systemSetting?.emergencyHotline || "01792345238"}
+                </a>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+              <Link
+                to="/crisis"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-xs"
+              >
+                Open Live SOS Board
+                <ArrowRight size={14} />
+              </Link>
+              <Link
+                to="/crisis?tab=parser"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold transition"
+              >
+                <Sparkles size={14} className="text-rose-600" />
+                Parse SOS with AI
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: 100% Transparent Relief Ledger */}
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/20 to-emerald-100/30 p-6 shadow-xs hover:shadow-md transition">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="size-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                  <ShieldCheck size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      Public Audit
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-500">Every ৳ Accounted For</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 mt-1">
+                    Transparent Public Relief Ledger
+                  </h3>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Live financial tracking of all campus relief contributions and expenditures. Verified against receipts with zero hidden deductions.
+            </p>
+
+            <div className="mt-4 grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-white/80 border border-emerald-100 backdrop-blur-xs text-center sm:text-left">
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400">Total Raised</span>
+                <p className="text-base sm:text-lg font-black text-slate-800">
+                  ৳{(ledgerSummary?.totalDonations || 0).toLocaleString()}
+                </p>
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400">Relief Spent</span>
+                <p className="text-base sm:text-lg font-black text-amber-600">
+                  ৳{(ledgerSummary?.totalExpenses || 0).toLocaleString()}
+                </p>
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400">Net Fund</span>
+                <p className="text-base sm:text-lg font-black text-emerald-600">
+                  ৳{(ledgerSummary?.balance || 0).toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+              <Link
+                to="/ledger"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs"
+              >
+                <HeartHandshake size={14} />
+                Donate to Relief Fund
+              </Link>
+              <Link
+                to="/ledger"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold transition"
+              >
+                <Receipt size={14} className="text-emerald-600" />
+                View Full Audit Ledger
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ──────────────── 7. HOW UNITYGRID EMPOWERS CAMPUS ──────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
         <div className="rounded-3xl bg-gradient-to-br from-[#101b33] to-[#182f5a] text-white p-8 sm:p-12 shadow-xl border border-slate-700/80">
           <div className="max-w-2xl mb-8">

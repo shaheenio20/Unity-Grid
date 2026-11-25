@@ -11,6 +11,9 @@ import clubRoutes from "./routes/club.routes.js";
 import eventRoutes from "./routes/event.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import bloodRoutes from "./routes/blood.routes.js";
+import crisisRoutes from "./routes/crisis.routes.js";
+import ledgerRoutes from "./routes/ledger.routes.js";
+import { SystemSetting } from "./models/SystemSetting.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +38,29 @@ app.use("/api/clubs", clubRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/blood", bloodRoutes);
+app.use("/api/crisis", crisisRoutes);
+app.use("/api/ledger", ledgerRoutes);
+
+// Public System Mode endpoint
+app.get("/api/system/mode", async (req, res) => {
+  try {
+    let setting = await SystemSetting.findOne().lean();
+    if (!setting) {
+      setting = {
+        isCrisisModeActive: false,
+        crisisTitle: "Sylhet Regional Flood Relief Operation",
+        emergencyHotline: "01792345238",
+        reliefCampLocation: "Metropolitan University Student Center, Sylhet",
+      };
+    }
+    return res.json({ success: true, setting });
+  } catch (error) {
+    return res.json({
+      success: true,
+      setting: { isCrisisModeActive: false, emergencyHotline: "01792345238" },
+    });
+  }
+});
 
 // Health Check & Test Routes
 app.get("/", (req, res) => {

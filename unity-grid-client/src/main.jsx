@@ -12,6 +12,7 @@ import Departments from "./components/pages/Departments/Departments";
 import ClubDetails from "./components/pages/Clubs/ClubDetails";
 import Events from "./components/pages/Events/Events";
 import BloodBank from "./components/pages/BloodBank/BloodBank";
+import CrisisHub from "./components/pages/Crisis/CrisisHub";
 
 const router = createBrowserRouter([
   // Public website routes wrapped with Navbar & Footer
@@ -37,11 +38,11 @@ const router = createBrowserRouter([
       },
       {
         path: "crisis",
-        element: <SectionPage section={portalSections.crisis} />,
+        element: <CrisisHub initialTab="sos" />,
       },
       {
         path: "ledger",
-        element: <SectionPage section={portalSections.ledger} />,
+        element: <CrisisHub initialTab="ledger" />,
       },
       {
         path: "messages",
