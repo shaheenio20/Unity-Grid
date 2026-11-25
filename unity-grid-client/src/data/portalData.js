@@ -32,6 +32,8 @@ export const portalSections = {
     shortTitle: 'Public ledger',
     title: 'Every contribution, accounted for',
     description: 'Review recent relief spending and its supporting verification details.',
-    items: [],
+    items: [
+      
+    ],
   },
 }
