@@ -46,7 +46,6 @@ const Register = () => {
         name: name.trim(),
         email: email.trim(),
         password,
-        role,
       };
 
       const { error: signUpError } = await authClient.signUp.email(payload);
@@ -152,7 +151,8 @@ const Register = () => {
                 Join UnityGrid
               </h2>
               <p className="text-slate-500 mt-1 text-xs">
-                Select your campus role to configure your account.
+                New accounts are registered as students. Department accounts are created by an administrator.
+                {" "}<Link to="/login" className="font-bold text-blue-700 hover:underline">Department login</Link>
               </p>
             </div>
 
@@ -182,6 +182,7 @@ const Register = () => {
 
                 {/* 2. Member */}
                 <button
+                  disabled
                   type="button"
                   onClick={() => {
                     setRole("Member");
@@ -200,6 +201,7 @@ const Register = () => {
 
                 {/* 3. Admin */}
                 <button
+                  disabled
                   type="button"
                   onClick={() => {
                     setRole("Admin");

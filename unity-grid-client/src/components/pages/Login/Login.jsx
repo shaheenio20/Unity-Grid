@@ -18,6 +18,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [departmentLogin, setDepartmentLogin] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user && isAdmin) {
@@ -59,12 +60,25 @@ const Login = () => {
       try {
         const meRes = await fetch(`${API_BASE}/api/me`, { credentials: "include" });
         const meData = await meRes.json();
+        if (meData?.user?.role === "Department") {
+          navigate("/dashboard/department", { replace: true });
+          return;
+        }
+        if (departmentLogin) {
+          await authClient.signOut();
+          setError("This account is not a department account.");
+          return;
+        }
         if (meData?.user?.role === "Admin") {
           navigate("/departments", { replace: true });
           return;
         }
       } catch {
-        // ignore
+        if (departmentLogin) {
+          await authClient.signOut();
+          setError("Could not verify the department account. Please try again.");
+          return;
+        }
       }
 
       const redirectTarget = location.state?.from || "/";
@@ -170,6 +184,10 @@ const Login = () => {
             )}
 
             {/* Form */}
+            <div className="flex gap-2 mb-5">
+              <button type="button" onClick={() => setDepartmentLogin(false)} className={`flex-1 rounded-xl border p-3 text-sm font-bold ${!departmentLogin ? "bg-[#173b69] text-white" : "bg-white"}`}>User login</button>
+              <button type="button" onClick={() => setDepartmentLogin(true)} className={`flex-1 rounded-xl border p-3 text-sm font-bold ${departmentLogin ? "bg-[#173b69] text-white" : "bg-white"}`}>Department login</button>
+            </div>
             <form onSubmit={handleSubmit}>
               {/* Email */}
               <div className="form-control mb-4">
