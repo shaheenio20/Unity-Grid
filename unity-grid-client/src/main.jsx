@@ -5,7 +5,6 @@ import "./index.css";
 import Routes from "./components/Routes/Routes";
 import Home from "./components/Home/Home";
 import SectionPage from "./components/SectionPage";
-import { portalSections } from "./data/portalData";
 import Login from "./components/pages/Login/Login";
 import Register from "./components/pages/Register/Register";
 import Departments from "./components/pages/Departments/Departments";
