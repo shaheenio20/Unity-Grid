@@ -13,6 +13,7 @@ import Events from "./components/pages/Events/Events";
 import BloodBank from "./components/pages/BloodBank/BloodBank";
 import CrisisHub from "./components/pages/Crisis/CrisisHub";
 import DepartmentDashboard from "./components/pages/Departments/DepartmentDashboard";
+import Navbar from "./components/shared/Navbar/Navbar";
 
 const router = createBrowserRouter([
   // Public website routes wrapped with Navbar & Footer
@@ -66,16 +67,16 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // Dedicated Admin Dashboard routes (NO public Navbar or Footer, Left Sidebar layout)
+  // Dashboard routes share the main navigation.
   {
     path: "/departments",
-    element: <Departments />,
+    element: <><Navbar /><div className="bg-white"><Departments /></div></>,
   },
   {
     path: "/dashboard/admin",
-    element: <Departments />,
+    element: <><Navbar /><div className="bg-white"><Departments /></div></>,
   },
-  { path: "/dashboard/department", element: <DepartmentDashboard /> },
+  { path: "/dashboard/department", element: <><Navbar /><div className="min-h-screen bg-white"><DepartmentDashboard /></div></> },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

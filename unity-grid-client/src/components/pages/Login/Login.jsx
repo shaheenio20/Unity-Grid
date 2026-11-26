@@ -22,7 +22,7 @@ const Login = () => {
 
   useEffect(() => {
     if (!authLoading && user && isAdmin) {
-      navigate("/departments", { replace: true });
+      navigate("/dashboard/admin", { replace: true });
     }
   }, [authLoading, user, isAdmin, navigate]);
 
@@ -70,7 +70,7 @@ const Login = () => {
           return;
         }
         if (meData?.user?.role === "Admin") {
-          navigate("/departments", { replace: true });
+          navigate("/dashboard/admin", { replace: true });
           return;
         }
       } catch {
