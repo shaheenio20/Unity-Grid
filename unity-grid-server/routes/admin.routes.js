@@ -4,11 +4,30 @@ import { Department } from "../models/Department.js";
 import { Club } from "../models/Club.js";
 import { Event } from "../models/Event.js";
 import { requireRole } from "../middleware/requireRole.js";
+import { auth } from "../config/betterAuth.js";
 
 const router = express.Router();
 
 // All routes in this file require Admin role
 router.use(requireRole(["Admin"]));
+
+router.post("/department-accounts", async (req, res) => {
+  try {
+    const { departmentId, email, password } = req.body;
+    if (!departmentId || !email || typeof password !== "string" || password.length < 8) {
+      return res.status(400).json({ success: false, message: "Department, email and a password of at least 8 characters are required." });
+    }
+    const department = await Department.findById(departmentId);
+    if (!department) return res.status(404).json({ success: false, message: "Department not found." });
+    const result = await auth.api.signUpEmail({ body: { name: department.name, email: email.trim(), password } });
+    const user = await User.findByIdAndUpdate(result.user.id, { role: "Department", department: String(department._id) }, { returnDocument: "after", runValidators: true });
+    if (!user) throw new Error("Created account could not be assigned to a department.");
+    return res.status(201).json({ success: true, message: "Department account created." });
+  } catch (error) {
+    console.error("Department account creation failed:", error);
+    return res.status(400).json({ success: false, message: "Could not create account. Check the email and try again." });
+  }
+});
 
 // GET /api/admin/stats - Quick stats overview
 router.get("/stats", async (req, res) => {
