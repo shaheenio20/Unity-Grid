@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.unity-theme-toggle { display: inline-grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border: 1px solid #e1e8f0; border-radius: 10px; color: #405b79; background: #f8fafc; }
+.unity-theme-toggle:hover { background: #edf3fa; }
+.unity-theme-toggle:focus-visible { outline: 3px solid #8cb6eb; outline-offset: 2px; }
+.unity-nav-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.unity-theme-toggle-mobile { display: none; }
+@media (max-width: 760px) { .unity-theme-toggle-mobile { display: inline-grid; margin-left: auto; } .unity-theme-toggle-desktop { display: none; } .unity-nav-actions { margin-top: 12px; width: 100%; } .unity-nav-actions > a, .unity-nav-actions > div { flex: 1; } .unity-nav-actions > div { margin-top: 0; } }
+html[data-theme="dark"] body { background: #101b2b; color: #e5edf7; }
+html[data-theme="dark"] .unity-navbar { background: #15243a; border-color: #34465c; }
+html[data-theme="dark"] .unity-navbar a:not([class*="bg-"]), html[data-theme="dark"] .unity-navbar span.text-gray-700 { color: #dbe6f3; }
+html[data-theme="dark"] .unity-theme-toggle { background: #263a53; border-color: #415674; color: #f6d780; }
+html[data-theme="dark"] .unity-theme-toggle:hover { background: #344d6c; }
+html[data-theme="dark"] :is(.bg-white, .bg-white\/95, .bg-base-100) { background-color: #1b2b40; }
+html[data-theme="dark"] :is(.bg-slate-50, .bg-gray-50, .bg-base-200, .bg-\[\#f8fafc\], .bg-\[\#f5f7fb\], .bg-\[\#f4f7fb\]) { background-color: #101b2b; }
+html[data-theme="dark"] :is(.text-slate-900, .text-slate-800, .text-slate-700, .text-gray-900, .text-gray-800, .text-gray-700) { color: #e1eaf4; }
+html[data-theme="dark"] :is(.text-slate-600, .text-slate-500, .text-gray-600, .text-gray-500) { color: #b5c4d5; }
+html[data-theme="dark"] :is(.border-slate-100, .border-slate-200, .border-gray-100, .border-gray-200) { border-color: #3a4c62; }
+html[data-theme="dark"] .dw-shell { background: #101b2b; color: #e1eaf4; }
+html[data-theme="dark"] :is(.dw-card, .dw-stat, .dw-modal) { background: #1b2b40; border-color: #34465c; }
+html[data-theme="dark"] :is(.dw-page-heading h1, .dw-card-head h2, .dw-event-info h4, .dw-stat > strong, .dw-club h2, .dw-member h2, .dw-modal-head h2, .dw-profile-ident strong) { color: #e4edf7; }
+html[data-theme="dark"] :is(.dw-page-heading p, .dw-card-head p, .dw-event-info p, .dw-stat p, .dw-detail span, .dw-club p, .dw-member-bio) { color: #adbed1; }
+html[data-theme="dark"] :is(.dw-detail strong, .dw-form label, .dw-empty h3) { color: #d1deed; }
+html[data-theme="dark"] :is(.dw-form input, .dw-form select, .dw-form textarea, .dw-status-label select, .dw-outline, .dw-date) { background: #22354c; color: #e4edf7; border-color: #42556d; }
+html[data-theme="dark"] :is(.dw-form input:disabled, .dw-form textarea:disabled) { background: #1b2b40; color: #b6c5d6; }
+html[data-theme="dark"] :is(.dw-event-row, .dw-profile-ident, .dw-member-contact, .dw-modal-head) { border-color: #34465c; }
+
+/* Project components use a mix of daisyUI tokens, Tailwind utilities and
+   custom colours. Map their common surfaces and text to the same dark palette. */
+html[data-theme="dark"] :is(.bg-\[\#f8fafc\], .bg-\[\#f5f7fb\], .bg-\[\#f4f7fb\], .bg-\[\#f5f7fa\], .bg-\[\#f5f7fb\], .bg-slate-50\/70, .bg-gray-50\/50) { background-color: #101b2b; }
+html[data-theme="dark"] :is(.bg-white\/95, .bg-white\/90, .bg-white\/80, .bg-white\/70, .bg-white\/60, .bg-slate-50, .bg-gray-50, .bg-\[\#e7f0ff\], .bg-\[\#edf2fe\], .bg-\[\#edf3ff\], .bg-\[\#eff3ff\], .bg-\[\#f4f6fd\]) { background-color: #22354c; }
+html[data-theme="dark"] :is(.text-\[\#172337\], .text-\[\#1c2b40\], .text-\[\#1c2a40\], .text-\[\#1c2b40\], .text-\[\#1c2b3e\], .text-\[\#29374d\], .text-\[\#2f3d53\], .text-\[\#173b69\], .text-\[\#122e53\], .text-\[\#1b3d6d\]) { color: #dce9f8; }
+html[data-theme="dark"] :is(.text-\[\#56647a\], .text-\[\#56657a\], .text-\[\#667287\], .text-\[\#738197\], .text-\[\#758297\], .text-\[\#71809a\], .text-\[\#5c6a7e\], .text-\[\#526dc2\]) { color: #b8c9dc; }
+html[data-theme="dark"] :is(.border-\[\#e5e9f2\], .border-\[\#e7ebf2\], .border-\[\#eef1f5\], .border-\[\#e8edf4\], .border-\[\#dfe5ef\], .border-\[\#e2e8f4\], .border-slate-200\/80, .border-slate-200\/90) { border-color: #3a4c62; }
+html[data-theme="dark"] :is(input, textarea, select):not([type="checkbox"]):not([type="radio"]) { color: #e4edf7; }
+html[data-theme="dark"] :is(input, textarea, select):is(.bg-white, .bg-transparent, .bg-\[\#e7f0ff\]) { background-color: #22354c; border-color: #42556d; }
+html[data-theme="dark"] :is(input, textarea)::placeholder { color: #9aadc2; }
+html[data-theme="dark"] :is(.hover\:bg-gray-50, .hover\:bg-slate-50):hover { background-color: #2a405a; }
+html[data-theme="dark"] :is(.bg-blue-50, .bg-blue-50\/70, .bg-\[\#edf3ff\], .bg-\[\#eff3ff\]) { background-color: #243d5d; }
+html[data-theme="dark"] :is(.dw-quick-card, .dw-empty-icon, .dw-club-icon, .dw-member-initial, .dw-stat-icon, .dw-card-icon, .dw-code-pill, .dw-count-pill, .dw-heading-count) { background-color: #283f5c; color: #d1e3f7; border-color: #3b5777; }
+html[data-theme="dark"] :is(.dw-quick-card strong, .dw-quick-card p, .dw-quick-card button, .dw-member-role, .dw-member-contact a, .dw-member-contact span, .dw-date strong) { color: #d1deed; }
+html[data-theme="dark"] :is(.dw-event-info p, .dw-empty p, .dw-modal-head p, .dw-kicker, .dw-stat-top, .dw-status-label, .dw-optional) { color: #afc0d2; }
+html[data-theme="dark"] .dw-modal .dw-form-actions { border-color: #34465c; }
+html[data-theme="dark"] :is(.swal2-popup, .swal2-input, .swal2-textarea, .swal2-select) { background: #1b2b40; color: #e4edf7; border-color: #42556d; }
+html[data-theme="dark"] :is(.swal2-title, .swal2-html-container) { color: #e4edf7; }

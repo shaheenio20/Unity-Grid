@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Moon, Sun } from 'lucide-react'
 import { authClient } from '../../../lib/authClient'
 import { useCurrentUser } from '../../../lib/useCurrentUser'
 import { showAlert, showToast } from '../../../lib/alerts'
 
 const navLinks = [
   { label: 'Home', to: '/' },
-  { label: 'Departments', to: '/departments' },
   { label: 'Events', to: '/events' },
   { label: 'Blood Network', to: '/blood' },
   { label: 'Crisis & Relief', to: '/crisis' },
@@ -18,6 +18,24 @@ function Navbar() {
   const { session, user, loading } = useCurrentUser()
   const [menuOpen, setMenuOpen] = useState(false)
   const [authError, setAuthError] = useState('')
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
+  const navbarRef = useRef(null)
+
+  useEffect(() => {
+    const navbar = navbarRef.current
+    if (!navbar) return
+    const updateHeight = () => document.documentElement.style.setProperty('--unity-navbar-height', `${navbar.offsetHeight}px`)
+    updateHeight()
+    const observer = new ResizeObserver(updateHeight)
+    observer.observe(navbar)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+    try { localStorage.setItem('unitygrid-theme', theme) } catch { /* Keep the theme for this session. */ }
+  }, [theme])
 
   const handleSignOut = async () => {
     setAuthError('')
@@ -42,7 +60,7 @@ function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[#e8ebf0] bg-white/95 backdrop-blur">
+    <header ref={navbarRef} className="unity-navbar sticky top-0 z-20 border-b border-[#e8ebf0] bg-white/95 backdrop-blur">
       {authError && (
         <p role="alert" className="bg-red-50 px-4 py-2 text-center text-sm text-red-700">
           {authError}
@@ -60,7 +78,16 @@ function Navbar() {
         </Link>
 
         <button
-          className="ml-auto hidden size-9 flex-col justify-center gap-[5px] rounded-lg border border-[#e7ebf2] bg-white p-2 max-[760px]:flex"
+          type="button"
+          className="unity-theme-toggle unity-theme-toggle-mobile"
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+        <button
+          className="hidden size-9 flex-col justify-center gap-[5px] rounded-lg border border-[#e7ebf2] bg-white p-2 max-[760px]:flex"
           type="button"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
@@ -86,8 +113,29 @@ function Navbar() {
                 <span>{item.label}</span>
               </NavLink>
             ))}
+            {!loading && session?.user && ['Department', 'Admin'].includes(user?.role) && (
+              <NavLink
+                to={user.role === 'Admin' ? '/dashboard/admin' : '/dashboard/department'}
+                onClick={() => setMenuOpen(false)}
+                className={({ isActive }) =>
+                  `whitespace-nowrap py-2 text-[11px] font-semibold transition hover:text-[#173b69] max-[760px]:border-b max-[760px]:border-[#eef1f5] max-[760px]:py-3 max-[760px]:text-xs ${isActive ? 'font-bold text-[#a81720]' : 'text-[#56647a]'}`
+                }
+              >
+                Dashboard
+              </NavLink>
+            )}
           </div>
 
+          <div className="unity-nav-actions">
+          <button
+            type="button"
+            className="unity-theme-toggle unity-theme-toggle-desktop"
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           {loading ? (
             <span className="px-4 text-[11px] text-[#56647a]" aria-live="polite">
               Checking session...
@@ -114,6 +162,7 @@ function Navbar() {
               Sign In
             </Link>
           )}
+          </div>
         </div>
       </nav>
     </header>
