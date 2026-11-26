@@ -12,6 +12,7 @@ import ClubDetails from "./components/pages/Clubs/ClubDetails";
 import Events from "./components/pages/Events/Events";
 import BloodBank from "./components/pages/BloodBank/BloodBank";
 import CrisisHub from "./components/pages/Crisis/CrisisHub";
+import DepartmentDashboard from "./components/pages/Departments/DepartmentDashboard";
 
 const router = createBrowserRouter([
   // Public website routes wrapped with Navbar & Footer
@@ -74,6 +75,7 @@ const router = createBrowserRouter([
     path: "/dashboard/admin",
     element: <Departments />,
   },
+  { path: "/dashboard/department", element: <DepartmentDashboard /> },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -13,6 +13,7 @@ import adminRoutes from "./routes/admin.routes.js";
 import bloodRoutes from "./routes/blood.routes.js";
 import crisisRoutes from "./routes/crisis.routes.js";
 import ledgerRoutes from "./routes/ledger.routes.js";
+import departmentWorkspaceRoutes from "./routes/departmentWorkspace.routes.js";
 import { SystemSetting } from "./models/SystemSetting.js";
 
 const app = express();
@@ -40,6 +41,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/blood", bloodRoutes);
 app.use("/api/crisis", crisisRoutes);
 app.use("/api/ledger", ledgerRoutes);
+app.use("/api/department-workspace", departmentWorkspaceRoutes);
 
 // Public System Mode endpoint
 app.get("/api/system/mode", async (req, res) => {
@@ -76,6 +78,7 @@ app.get("/api/me", requireAuth, async (req, res) => {
       user: {
         ...req.user,
         role: dbUser?.role || req.user.role || "Student",
+        department: dbUser?.department || null,
       },
     });
   } catch {

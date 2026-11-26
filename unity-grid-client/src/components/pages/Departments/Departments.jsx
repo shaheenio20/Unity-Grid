@@ -88,6 +88,28 @@ const Departments = () => {
   const [feedback, setFeedback] = useState({ text: "", type: "" });
   const [submitting, setSubmitting] = useState(false);
 
+  const createDepartmentAccount = async (dept) => {
+    const result = await Swal.fire({
+      title: `Create login for ${dept.name}`,
+      html: '<input id="dept-email" class="swal2-input" type="email" placeholder="Department email"><input id="dept-password" class="swal2-input" type="password" placeholder="Password (at least 8 characters)">',
+      showCancelButton: true,
+      confirmButtonText: "Create account",
+      preConfirm: () => {
+        const email = document.getElementById("dept-email").value.trim();
+        const password = document.getElementById("dept-password").value;
+        if (!email || password.length < 8) { Swal.showValidationMessage("Enter an email and a password of at least 8 characters."); return false; }
+        return { email, password };
+      },
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const response = await fetch(`${API_BASE}/api/admin/department-accounts`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ departmentId: dept._id, ...result.value }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      showAlert.success("Account created", `Department login for ${dept.name} is ready.`);
+    } catch (error) { showAlert.error("Account creation failed", error.message); }
+  };
+
   const fetchDashboardData = async () => {
     setDataLoading(true);
     try {
@@ -1148,6 +1170,7 @@ const Departments = () => {
                             </td>
                             <td className="py-4 px-6 text-right">
                               <div className="inline-flex items-center gap-1.5">
+                                <button type="button" onClick={() => createDepartmentAccount(dept)} className="rounded-xl px-2 py-1 text-[#173b69] font-bold hover:bg-blue-50">Create login</button>
                                 <button
                                   title="Edit Department"
                                   onClick={() => {
