@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import Routes from "./components/Routes/Routes";
 import Home from "./components/Home/Home";
-import SectionPage from "./components/SectionPage";
 import Login from "./components/pages/Login/Login";
 import Register from "./components/pages/Register/Register";
 import Departments from "./components/pages/Departments/Departments";
@@ -12,6 +11,7 @@ import ClubDetails from "./components/pages/Clubs/ClubDetails";
 import Events from "./components/pages/Events/Events";
 import BloodBank from "./components/pages/BloodBank/BloodBank";
 import CrisisHub from "./components/pages/Crisis/CrisisHub";
+import MessagesPage from "./components/pages/Messages/MessagesPage";
 import DepartmentDashboard from "./components/pages/Departments/DepartmentDashboard";
 import Navbar from "./components/shared/Navbar/Navbar";
 
@@ -38,7 +38,15 @@ const router = createBrowserRouter([
         element: <BloodBank />,
       },
       {
+        path: "blood-bank",
+        element: <BloodBank />,
+      },
+      {
         path: "crisis",
+        element: <CrisisHub initialTab="sos" />,
+      },
+      {
+        path: "crisis-hub",
         element: <CrisisHub initialTab="sos" />,
       },
       {
@@ -47,15 +55,7 @@ const router = createBrowserRouter([
       },
       {
         path: "messages",
-        element: (
-          <SectionPage
-            section={{
-              title: "Messages & Coordination",
-              shortTitle: "Direct Channels",
-              description: "Coordinate with volunteers, donors, and campus leads.",
-            }}
-          />
-        ),
+        element: <MessagesPage />,
       },
       {
         path: "login",
