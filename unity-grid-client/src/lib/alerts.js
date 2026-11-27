@@ -28,6 +28,32 @@ export const showToast = {
         popup: "rounded-2xl shadow-lg border border-red-100 font-sans text-xs",
       },
     }),
+  info: (title) =>
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "info",
+      title,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      customClass: {
+        popup: "rounded-2xl shadow-lg border border-blue-100 font-sans text-xs",
+      },
+    }),
+  warning: (title) =>
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "warning",
+      title,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      customClass: {
+        popup: "rounded-2xl shadow-lg border border-amber-100 font-sans text-xs",
+      },
+    }),
 };
 
 // Modern Modal Alerts

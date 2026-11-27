@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   AlertTriangle,
   HeartHandshake,
@@ -19,7 +19,7 @@ import {
   Trash2,
   Eye,
   RefreshCw,
-
+  MessageSquare,
 } from "lucide-react";
 import { useCurrentUser } from "../../../lib/useCurrentUser";
 import { showAlert, showConfirmDelete, showToast } from "../../../lib/alerts";
@@ -54,6 +54,7 @@ const EXAMPLE_MESSAGES = [
 ];
 
 export default function CrisisHub({ initialTab = "sos" }) {
+  const navigate = useNavigate();
   const { user, session, isAdmin, isMember } = useCurrentUser();
   const [searchParams] = useSearchParams();
 
@@ -317,6 +318,56 @@ export default function CrisisHub({ initialTab = "sos" }) {
       }
     } catch {
       showAlert.error("Error", "Failed to delete ticket.");
+    }
+  };
+
+  // One-Click Direct Triage / Emergency Rescue Chat Dispatch
+  const handleEmergencyChat = async (ticket) => {
+    if (!user) {
+      showAlert.error("Sign In Required", "Please sign in to start emergency live triage with Admin.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      showToast.info("Connecting to Emergency Rescue Dispatch...");
+      const res = await fetch(`${API_BASE}/api/messages/requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          category: "Flood_Crisis",
+          subject: `🌊 [Flood SOS] ${ticket.zone} - ${ticket.location}`,
+          initialMessage: `Reporter: ${ticket.reporterName || "SOS Reporter"}\nZone: ${ticket.zone}\nLocation: ${ticket.location}\nPeople Stranded: ${ticket.peopleCount} person(s)\nRequired Needs: ${ticket.needs || "Rescue Boat, Clean Water, Dry Food"}\nContact Phone: ${ticket.contactInfo}\nSituation Details: ${ticket.rawText || "Urgent rescue assistance required."}`,
+          urgency: ticket.urgency === "Critical" ? "Critical" : "High",
+          emergencyMeta: {
+            relatedType: "CrisisTicket",
+            relatedId: ticket._id,
+            zone: ticket.zone,
+            location: ticket.location,
+            peopleCount: ticket.peopleCount,
+            needs: ticket.needs,
+            contactNumber: ticket.contactInfo,
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.conversation?._id) {
+        showToast.success(
+          data.isExisting
+            ? "Opening active emergency rescue conversation..."
+            : "SOS Request dispatched to Admin command queue."
+        );
+        navigate(`/messages?id=${data.conversation._id}`, {
+          state: { conversationId: data.conversation._id },
+        });
+      } else {
+        showAlert.error("Dispatch Failed", data.message || "Failed to start emergency chat.");
+      }
+    } catch (err) {
+      console.error("Crisis chat dispatch error:", err);
+      showAlert.error("Network Error", "Unable to connect to the emergency dispatch desk.");
     }
   };
 
@@ -746,12 +797,23 @@ export default function CrisisHub({ initialTab = "sos" }) {
 
                     {/* Card Actions Footer */}
                     <div className="mt-5 pt-3 border-t border-slate-100 space-y-2">
-                      <a
-                        href={`tel:${t.contactInfo}`}
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white py-2 text-xs font-bold transition shadow-xs"
-                      >
-                        <Phone size={14} /> Call Contact: {t.contactInfo}
-                      </a>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <a
+                          href={`tel:${t.contactInfo}`}
+                          className="flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white py-2 text-xs font-bold transition shadow-xs truncate"
+                        >
+                          <Phone size={13} className="shrink-0" /> <span className="truncate">Call: {t.contactInfo}</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleEmergencyChat(t)}
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-[#173b69] py-2 text-xs font-bold transition shadow-2xs truncate"
+                          title="Start emergency live rescue coordination with dispatch admin"
+                        >
+                          <MessageSquare size={13} className="shrink-0" />
+                          <span className="truncate">Live SOS Chat</span>
+                        </button>
+                      </div>
 
                       {/* Member & Admin Management Controls */}
                       {(isAdmin || isMember) && (

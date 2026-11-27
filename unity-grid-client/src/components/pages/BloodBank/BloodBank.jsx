@@ -21,6 +21,7 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 import { useCurrentUser } from "../../../lib/useCurrentUser";
 import { showAlert, showConfirmDelete, showToast } from "../../../lib/alerts";
@@ -257,6 +258,56 @@ const BloodBank = () => {
       }
     } catch {
       showAlert.error("Error", "Error deleting blood request.");
+    }
+  };
+
+  // One-Click Direct Triage / Emergency Chat Dispatch
+  const handleEmergencyChat = async (bloodReq) => {
+    if (!user) {
+      showAlert.error("Sign In Required", "Please sign in to start an emergency chat with Admin.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      showToast.info("Connecting to Emergency Dispatch...");
+      const res = await fetch(`${API_BASE}/api/messages/requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          category: "Blood_Emergency",
+          subject: `🩸 [Blood Alert] ${bloodReq.bloodGroup} needed at ${bloodReq.hospital}`,
+          initialMessage: `Patient: ${bloodReq.patientName}\nBlood Group: ${bloodReq.bloodGroup}\nUnits Needed: ${bloodReq.unitsNeeded} Bag(s)\nHospital: ${bloodReq.hospital}, ${bloodReq.location}\nNeeded by: ${new Date(bloodReq.requiredDate).toLocaleDateString()}\nContact Phone: ${bloodReq.contactNumber}\nNotes: ${bloodReq.additionalNotes || "Urgent assistance required."}`,
+          urgency: bloodReq.urgency === "Critical" ? "Critical" : "High",
+          emergencyMeta: {
+            relatedType: "BloodRequest",
+            relatedId: bloodReq._id,
+            bloodGroup: bloodReq.bloodGroup,
+            hospital: bloodReq.hospital,
+            unitsNeeded: bloodReq.unitsNeeded,
+            contactNumber: bloodReq.contactNumber,
+            location: bloodReq.location,
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.conversation?._id) {
+        showToast.success(
+          data.isExisting
+            ? "Opening active emergency conversation..."
+            : "Emergency request submitted to Admin queue."
+        );
+        navigate(`/messages?id=${data.conversation._id}`, {
+          state: { conversationId: data.conversation._id },
+        });
+      } else {
+        showAlert.error("Dispatch Failed", data.message || "Failed to start emergency chat.");
+      }
+    } catch (err) {
+      console.error("Emergency chat dispatch error:", err);
+      showAlert.error("Network Error", "Unable to connect to the emergency dispatch desk.");
     }
   };
 
@@ -754,12 +805,23 @@ const BloodBank = () => {
                       {/* Card Footer: Call Action & Management */}
                       <div className="mt-5 pt-3 border-t border-slate-100 space-y-2">
                         {req.status === "Pending" ? (
-                          <a
-                            href={`tel:${req.contactNumber}`}
-                            className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white py-2.5 text-xs font-bold transition shadow-xs"
-                          >
-                            <Phone size={14} /> Call: {req.contactNumber}
-                          </a>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <a
+                              href={`tel:${req.contactNumber}`}
+                              className="flex items-center justify-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white py-2 text-xs font-bold transition shadow-xs truncate"
+                            >
+                              <Phone size={13} className="shrink-0" /> <span className="truncate">Call: {req.contactNumber}</span>
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => handleEmergencyChat(req)}
+                              className="flex items-center justify-center gap-1.5 rounded-xl border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 py-2 text-xs font-bold transition shadow-2xs truncate"
+                              title="Start emergency live triage and chat with dispatch admin"
+                            >
+                              <MessageSquare size={13} className="shrink-0" />
+                              <span className="truncate">Emergency Chat</span>
+                            </button>
+                          </div>
                         ) : req.status === "Fulfilled" ? (
                           <div className="w-full rounded-2xl bg-emerald-50/90 border border-emerald-200 p-2.5 text-center">
                             <div className="flex items-center justify-center gap-1.5 text-emerald-800 font-bold text-xs">
