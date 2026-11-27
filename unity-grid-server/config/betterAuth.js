@@ -28,10 +28,12 @@ export const auth = betterAuth({
         type: "string",
         defaultValue: "Student",
         required: false,
+        input: false,
       },
       department: {
         type: "string",
         required: false,
+        input: false,
       },
       studentId: {
         type: "string",

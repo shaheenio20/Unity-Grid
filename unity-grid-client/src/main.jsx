@@ -5,7 +5,6 @@ import "./index.css";
 import Routes from "./components/Routes/Routes";
 import Home from "./components/Home/Home";
 import SectionPage from "./components/SectionPage";
-import { portalSections } from "./data/portalData";
 import Login from "./components/pages/Login/Login";
 import Register from "./components/pages/Register/Register";
 import Departments from "./components/pages/Departments/Departments";
@@ -13,6 +12,8 @@ import ClubDetails from "./components/pages/Clubs/ClubDetails";
 import Events from "./components/pages/Events/Events";
 import BloodBank from "./components/pages/BloodBank/BloodBank";
 import CrisisHub from "./components/pages/Crisis/CrisisHub";
+import DepartmentDashboard from "./components/pages/Departments/DepartmentDashboard";
+import Navbar from "./components/shared/Navbar/Navbar";
 
 const router = createBrowserRouter([
   // Public website routes wrapped with Navbar & Footer
@@ -66,15 +67,16 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // Dedicated Admin Dashboard routes (NO public Navbar or Footer, Left Sidebar layout)
+  // Dashboard routes share the main navigation.
   {
     path: "/departments",
-    element: <Departments />,
+    element: <><Navbar /><div className="bg-white"><Departments /></div></>,
   },
   {
     path: "/dashboard/admin",
-    element: <Departments />,
+    element: <><Navbar /><div className="bg-white"><Departments /></div></>,
   },
+  { path: "/dashboard/department", element: <><Navbar /><div className="min-h-screen bg-white"><DepartmentDashboard /></div></> },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
