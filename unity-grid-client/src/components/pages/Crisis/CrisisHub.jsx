@@ -20,6 +20,10 @@ import {
   Eye,
   RefreshCw,
   MessageSquare,
+  Waves,
+  Droplets,
+  Leaf,
+  PhoneCall,
 } from "lucide-react";
 import { useCurrentUser } from "../../../lib/useCurrentUser";
 import { showAlert, showConfirmDelete, showToast } from "../../../lib/alerts";
@@ -101,6 +105,7 @@ export default function CrisisHub({ initialTab = "sos" }) {
   const [showReceiptPreview, setShowReceiptPreview] = useState(null);
   const [showFieldNoteModal, setShowFieldNoteModal] = useState(null);
   const [fieldNoteText, setFieldNoteText] = useState("");
+  const [showHelplineModal, setShowHelplineModal] = useState(false);
 
   // Forms
   const [donationForm, setDonationForm] = useState({
@@ -543,6 +548,54 @@ export default function CrisisHub({ initialTab = "sos" }) {
               <p className="text-[10px] text-emerald-400/80 mt-0.5">
                 ৳{ledgerSummary.totalExpenses.toLocaleString()} Deployed
               </p>
+            </div>
+          </div>
+
+          {/* ──────────────── RIVER BASIN & ECO-DISASTER HAZARD WATCH (Theme: Environment & Responsible Living) ──────────────── */}
+          <div className="mt-6 p-4 rounded-2xl bg-slate-900/75 border border-teal-500/30 backdrop-blur-md">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="size-8 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0 border border-teal-500/30">
+                  <Waves size={16} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 rounded-full bg-teal-400 animate-ping" />
+                    <span className="text-[11px] font-black uppercase tracking-wider text-teal-300">
+                      River Basin & Eco-Hazard Watch (Sylhet Catchment)
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-300">
+                    Environmental flood monitoring, river basin gauges & safe water hygiene advisory
+                  </p>
+                </div>
+              </div>
+
+              {/* Water Levels & Eco Alert */}
+              <div className="flex items-center gap-2 flex-wrap text-xs">
+                <div className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/10 text-slate-200">
+                  <span className="text-slate-400 text-[10px]">Surma:</span>
+                  <span className="font-bold text-amber-300">11.45m</span>
+                  <span className="text-[9px] text-amber-400 font-semibold">(Warning: 10.80m)</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/10 text-slate-200">
+                  <span className="text-slate-400 text-[10px]">Kushiyara:</span>
+                  <span className="font-bold text-emerald-300">12.10m</span>
+                  <span className="text-[9px] text-emerald-400 font-semibold">(Normal: 11.50m)</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-teal-500/15 text-teal-300 px-2.5 py-1.5 rounded-xl border border-teal-500/30 text-[11px]">
+                  <Droplets size={12} className="text-teal-300 shrink-0" />
+                  <span>Eco-Hygiene: Boil water 10+ mins</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowHelplineModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs shrink-0"
+                >
+                  <PhoneCall size={12} />
+                  <span>Civic Helplines</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1594,6 +1647,108 @@ export default function CrisisHub({ initialTab = "sos" }) {
               >
                 Save Report
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ──────────────── CIVIC SERVICES & LOCAL HELPLINES MODAL ──────────────── */}
+      {showHelplineModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="size-9 rounded-xl bg-[#173b69] text-white flex items-center justify-center shadow-xs">
+                  <PhoneCall size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900">
+                    Civic Services & Emergency Helplines
+                  </h3>
+                  <p className="text-[10px] text-slate-500">
+                    Verified local municipal and government disaster hotlines (Sylhet Division)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowHelplineModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {[
+                {
+                  title: "Fire Service & Civil Defence",
+                  loc: "Sylhet Sadar Station & Water Rescue",
+                  phone: "16163",
+                  icon: "🚒",
+                  color: "bg-red-50 text-red-700 border-red-200",
+                },
+                {
+                  title: "MAG Osmani Medical College Hospital",
+                  loc: "Emergency Patient Ward & Blood Bank Desk",
+                  phone: "01712456789",
+                  icon: "🏥",
+                  color: "bg-blue-50 text-blue-700 border-blue-200",
+                },
+                {
+                  title: "Bangladesh Red Crescent Society",
+                  loc: "Sylhet District Disaster Response Unit",
+                  phone: "01711987654",
+                  icon: "🚑",
+                  color: "bg-rose-50 text-rose-700 border-rose-200",
+                },
+                {
+                  title: "District Disaster Control Room",
+                  loc: "Sylhet Deputy Commissioner (DC) Office",
+                  phone: "01700700800",
+                  icon: "🌊",
+                  color: "bg-amber-50 text-amber-800 border-amber-200",
+                },
+                {
+                  title: "Electricity & Power Emergency (PDB)",
+                  loc: "Substation Waterlogging & Line Break Hotline",
+                  phone: "16216",
+                  icon: "⚡",
+                  color: "bg-yellow-50 text-yellow-800 border-yellow-200",
+                },
+                {
+                  title: "National Emergency Service (BD)",
+                  loc: "Police, Ambulance & Rescue Command",
+                  phone: "999",
+                  icon: "🚨",
+                  color: "bg-slate-100 text-slate-800 border-slate-200",
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`p-2.5 sm:p-3 rounded-2xl border flex items-center justify-between gap-2 sm:gap-3 ${item.color}`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-xl shrink-0">{item.icon}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-slate-900 truncate">
+                        {item.title}
+                      </p>
+                      <p className="text-[10px] text-slate-500 truncate">{item.loc}</p>
+                    </div>
+                  </div>
+                  <a
+                    href={`tel:${item.phone}`}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#173b69] hover:bg-[#122e53] text-white text-xs font-bold transition shadow-2xs shrink-0"
+                  >
+                    <Phone size={11} />
+                    <span>Call {item.phone}</span>
+                  </a>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 text-center">
+              💡 <span className="font-semibold">Local Civic Solution:</span> UnityGrid directly coordinates volunteer trawlers & relief units in sync with these civic desks.
             </div>
           </div>
         </div>
