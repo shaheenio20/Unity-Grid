@@ -1109,91 +1109,96 @@ export default function MessagesPage() {
                 </div>
               </div>
 
-              {/* Emergency Incident Ribbon (Blood or Flood Crisis) */}
+              {/* Emergency Incident HUD Ribbon (Blood or Flood Crisis) */}
               {(selectedConversation.category === "Blood_Emergency" ||
                 selectedConversation.category === "Flood_Crisis" ||
                 selectedConversation.emergencyMeta?.relatedType) && (
                 <div
-                  className={`px-2.5 sm:px-4 py-1.5 sm:py-2 border-b text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 shrink-0 w-full min-w-0 overflow-hidden ${
+                  className={`px-3 py-2 border-b text-xs shrink-0 w-full min-w-0 transition ${
                     selectedConversation.category === "Blood_Emergency"
-                      ? "bg-red-50/90 border-red-200 text-red-950"
-                      : "bg-blue-50/90 border-blue-200 text-blue-950"
+                      ? "bg-red-50/90 dark:bg-red-950/40 border-red-200 dark:border-red-900/50 text-red-950 dark:text-red-200"
+                      : "bg-blue-50/90 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/50 text-blue-950 dark:text-blue-200"
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
-                    {selectedConversation.category === "Blood_Emergency" ? (
-                      <>
-                        <span className="inline-flex items-center gap-1 font-black bg-red-600 text-white px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] tracking-wide uppercase shadow-2xs shrink-0">
-                          <Droplet size={10} className="fill-white" />
-                          Blood Alert
-                        </span>
-                        {selectedConversation.emergencyMeta?.bloodGroup && (
-                          <span className="font-black bg-white px-1.5 py-0.5 rounded border border-red-200 text-red-700 text-[10px] sm:text-xs shrink-0">
-                            🩸 Group: {selectedConversation.emergencyMeta.bloodGroup}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 w-full min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
+                      {selectedConversation.category === "Blood_Emergency" ? (
+                        <>
+                          <span className="inline-flex items-center gap-1 font-black bg-red-600 text-white px-2 py-0.5 rounded-md text-[10px] tracking-wide uppercase shadow-2xs shrink-0">
+                            <Droplet size={11} className="fill-white" />
+                            Blood Alert
                           </span>
-                        )}
-                        {selectedConversation.emergencyMeta?.hospital && (
-                          <span className="font-bold text-slate-800 text-[10px] sm:text-xs truncate max-w-[180px] sm:max-w-none">
-                            🏥 {selectedConversation.emergencyMeta.hospital}
+                          {selectedConversation.emergencyMeta?.bloodGroup && (
+                            <span className="font-black bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 text-xs shrink-0 shadow-2xs">
+                              🩸 {selectedConversation.emergencyMeta.bloodGroup}
+                            </span>
+                          )}
+                          {selectedConversation.emergencyMeta?.hospital && (
+                            <span className="font-bold text-slate-800 dark:text-slate-200 text-xs truncate max-w-[200px] sm:max-w-none">
+                              🏥 {selectedConversation.emergencyMeta.hospital}
+                            </span>
+                          )}
+                          {selectedConversation.emergencyMeta?.unitsNeeded && (
+                            <span className="text-slate-600 dark:text-slate-400 font-semibold text-xs shrink-0">
+                              ({selectedConversation.emergencyMeta.unitsNeeded} Bag{selectedConversation.emergencyMeta.unitsNeeded > 1 ? "s" : ""})
+                            </span>
+                          )}
+                          {selectedConversation.emergencyMeta?.contactNumber && (
+                            <a
+                              href={`tel:${selectedConversation.emergencyMeta.contactNumber}`}
+                              className="font-mono text-red-700 dark:text-red-300 font-bold bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-900/50 text-xs shrink-0 hover:underline"
+                            >
+                              📞 {selectedConversation.emergencyMeta.contactNumber}
+                            </a>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <span className="inline-flex items-center gap-1 font-black bg-[#173b69] dark:bg-blue-600 text-white px-2 py-0.5 rounded-md text-[10px] tracking-wide uppercase shadow-2xs shrink-0">
+                            <Waves size={11} />
+                            Flood SOS
                           </span>
-                        )}
-                        {selectedConversation.emergencyMeta?.unitsNeeded && (
-                          <span className="text-slate-600 font-medium text-[10px] sm:text-xs shrink-0">
-                            ({selectedConversation.emergencyMeta.unitsNeeded} Bag{selectedConversation.emergencyMeta.unitsNeeded > 1 ? "s" : ""})
-                          </span>
-                        )}
-                        {selectedConversation.emergencyMeta?.contactNumber && (
-                          <span className="font-mono text-red-700 font-bold bg-white px-1.5 py-0.5 rounded border border-red-100 text-[10px] sm:text-xs shrink-0">
-                            📞 {selectedConversation.emergencyMeta.contactNumber}
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <span className="inline-flex items-center gap-1 font-black bg-[#173b69] text-white px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] tracking-wide uppercase shadow-2xs shrink-0">
-                          <Waves size={10} />
-                          Flood SOS
-                        </span>
-                        {selectedConversation.emergencyMeta?.zone && (
-                          <span className="font-black bg-white px-1.5 py-0.5 rounded border border-blue-200 text-[#173b69] text-[10px] sm:text-xs shrink-0">
-                            Zone: {selectedConversation.emergencyMeta.zone}
-                          </span>
-                        )}
-                        {selectedConversation.emergencyMeta?.location && (
-                          <span className="font-bold text-slate-800 text-[10px] sm:text-xs truncate max-w-[160px] sm:max-w-none">
-                            📍 {selectedConversation.emergencyMeta.location}
-                          </span>
-                        )}
-                        {selectedConversation.emergencyMeta?.peopleCount > 0 && (
-                          <span className="text-blue-900 font-semibold bg-white px-1.5 py-0.5 rounded border border-blue-100 text-[10px] sm:text-xs shrink-0">
-                            👥 {selectedConversation.emergencyMeta.peopleCount} Stranded
-                          </span>
-                        )}
-                        {selectedConversation.emergencyMeta?.needs && (
-                          <span className="text-blue-800 font-medium text-[10px] sm:text-[11px] truncate max-w-full">
-                            📦 Needs: {selectedConversation.emergencyMeta.needs}
-                          </span>
-                        )}
-                      </>
+                          {selectedConversation.emergencyMeta?.zone && (
+                            <span className="font-black bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-900/50 text-[#173b69] dark:text-blue-300 text-xs shrink-0 shadow-2xs">
+                              Zone: {selectedConversation.emergencyMeta.zone}
+                            </span>
+                          )}
+                          {selectedConversation.emergencyMeta?.location && (
+                            <span className="font-bold text-slate-800 dark:text-slate-200 text-xs truncate max-w-[180px] sm:max-w-none">
+                              📍 {selectedConversation.emergencyMeta.location}
+                            </span>
+                          )}
+                          {selectedConversation.emergencyMeta?.peopleCount > 0 && (
+                            <span className="text-blue-900 dark:text-blue-300 font-bold bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-900/50 text-xs shrink-0">
+                              👥 {selectedConversation.emergencyMeta.peopleCount} Stranded
+                            </span>
+                          )}
+                          {selectedConversation.emergencyMeta?.needs && (
+                            <span className="text-blue-800 dark:text-blue-300 font-medium text-xs truncate max-w-full">
+                              📦 {selectedConversation.emergencyMeta.needs}
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {selectedConversation.emergencyMeta?.relatedType === "BloodRequest" && (
+                      <Link
+                        to="/blood"
+                        className="text-xs font-bold text-red-700 dark:text-red-300 hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto"
+                      >
+                        View Blood Bank &rarr;
+                      </Link>
+                    )}
+                    {selectedConversation.emergencyMeta?.relatedType === "CrisisTicket" && (
+                      <Link
+                        to="/crisis"
+                        className="text-xs font-bold text-blue-700 dark:text-blue-300 hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto"
+                      >
+                        View Crisis Hub &rarr;
+                      </Link>
                     )}
                   </div>
-
-                  {selectedConversation.emergencyMeta?.relatedType === "BloodRequest" && (
-                    <Link
-                      to="/blood"
-                      className="text-[10px] sm:text-[11px] font-bold text-red-700 hover:text-red-900 hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto"
-                    >
-                      View Blood Bank &rarr;
-                    </Link>
-                  )}
-                  {selectedConversation.emergencyMeta?.relatedType === "CrisisTicket" && (
-                    <Link
-                      to="/crisis"
-                      className="text-[10px] sm:text-[11px] font-bold text-blue-700 hover:text-blue-900 hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto"
-                    >
-                      View Crisis Hub &rarr;
-                    </Link>
-                  )}
                 </div>
               )}
 
@@ -1276,138 +1281,212 @@ export default function MessagesPage() {
               {/* ──────── TICKET CONTENT AREA: PENDING BRIEFING vs ACTIVE CHATBOARD ──────── */}
               {selectedConversation.status === "Pending" ? (
                 <div className="flex-1 overflow-y-auto p-3 sm:p-6 w-full min-w-0">
-                  <div className="max-w-xl w-full mx-auto bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-xs sm:shadow-sm space-y-4">
-                    {/* Header Details */}
-                    <div className="pb-4 border-b border-slate-100">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
-                        <Clock size={12} />
-                        Pending Admin Review
-                      </span>
-                      <h3 className="text-base sm:text-lg font-black text-slate-900 mt-2">
-                        {selectedConversation.subject}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Submitted by <span className="font-bold text-slate-700">{selectedConversation.requesterName}</span> ({selectedConversation.requesterRole}) · {new Date(selectedConversation.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-
-                    {/* Submitted Problem Description Card */}
-                    <div>
-                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
-                        Submitted Problem Description
-                      </span>
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap font-sans">
-                        {selectedConversation.initialMessage}
-                      </div>
-                    </div>
-
-                    {/* Metadata summary */}
-                    <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
-                      <div>
-                        <span className="text-[10px] font-black uppercase text-slate-400 block">Category</span>
-                        <span className="font-bold text-slate-700">{selectedConversation.category.replace("_", " ")}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-black uppercase text-slate-400 block">Urgency Level</span>
-                        <span className={`font-bold ${selectedConversation.urgency === 'Critical' ? 'text-red-600' : 'text-slate-700'}`}>
-                          {selectedConversation.urgency}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Emergency Meta Details if linked */}
-                    {selectedConversation.emergencyMeta?.relatedType && (
-                      <div className="p-4 rounded-2xl bg-red-50/60 border border-red-200 text-xs space-y-2">
-                        <span className="text-[10px] font-black uppercase text-red-700 tracking-wider flex items-center gap-1.5">
-                          <Droplet size={12} className="text-red-600" />
-                          Emergency Dispatch Details
-                        </span>
-                        <div className="grid grid-cols-2 gap-2 text-slate-800">
-                          {selectedConversation.emergencyMeta.bloodGroup && (
-                            <div>
-                              <span className="text-slate-500 text-[10px] block">Blood Group</span>
-                              <span className="font-black text-red-600 text-sm">{selectedConversation.emergencyMeta.bloodGroup}</span>
-                            </div>
-                          )}
-                          {selectedConversation.emergencyMeta.hospital && (
-                            <div>
-                              <span className="text-slate-500 text-[10px] block">Hospital</span>
-                              <span className="font-semibold text-slate-800">{selectedConversation.emergencyMeta.hospital}</span>
-                            </div>
-                          )}
-                          {selectedConversation.emergencyMeta.unitsNeeded && (
-                            <div>
-                              <span className="text-slate-500 text-[10px] block">Units Needed</span>
-                              <span className="font-bold text-slate-800">{selectedConversation.emergencyMeta.unitsNeeded} Bag(s)</span>
-                            </div>
-                          )}
-                          {selectedConversation.emergencyMeta.contactNumber && (
-                            <div>
-                              <span className="text-slate-500 text-[10px] block">Contact Phone</span>
-                              <span className="font-bold font-mono text-red-700">{selectedConversation.emergencyMeta.contactNumber}</span>
-                            </div>
-                          )}
-                          {selectedConversation.emergencyMeta.zone && (
-                            <div>
-                              <span className="text-slate-500 text-[10px] block">Flood Zone</span>
-                              <span className="font-black text-[#173b69]">{selectedConversation.emergencyMeta.zone}</span>
-                            </div>
-                          )}
-                          {selectedConversation.emergencyMeta.location && (
-                            <div>
-                              <span className="text-slate-500 text-[10px] block">Specific Location</span>
-                              <span className="font-semibold text-slate-800">{selectedConversation.emergencyMeta.location}</span>
-                            </div>
-                          )}
-                          {selectedConversation.emergencyMeta.peopleCount > 0 && (
-                            <div>
-                              <span className="text-slate-500 text-[10px] block">Stranded Count</span>
-                              <span className="font-bold text-slate-800">{selectedConversation.emergencyMeta.peopleCount} People</span>
-                            </div>
-                          )}
-                          {selectedConversation.emergencyMeta.needs && (
-                            <div className="col-span-2">
-                              <span className="text-slate-500 text-[10px] block">Emergency Needs</span>
-                              <span className="font-medium text-slate-800">{selectedConversation.emergencyMeta.needs}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Admin Action Box vs Student Waiting Box */}
-                    {isAdmin ? (
-                      <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-3">
-                        <p className="text-xs text-emerald-900 font-medium">
-                          স্টুডেন্টের সমস্যা পর্যালোচনা করুন। আপনি <b>"Accept Request & Open Chatboard"</b> বাটনে ক্লিক করার পরই এটি লাইভ চ্যাটবোর্ডে ট্রান্সফার হবে এবং উভয় পক্ষ চ্যাট করতে পারবে।
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button
-                            onClick={() => handleAcceptRequest(selectedConversation._id)}
-                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5"
-                          >
+                  <div className="max-w-2xl w-full mx-auto space-y-4">
+                    {/* Status Progress Stepper */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-xs">
+                      <div className="grid grid-cols-3 gap-2 text-center relative">
+                        {/* Step 1: Submitted */}
+                        <div className="flex flex-col items-center">
+                          <div className="size-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 flex items-center justify-center font-bold text-xs mb-1.5 shadow-2xs">
                             <Check size={14} />
-                            Accept Request & Open Chatboard
-                          </button>
-                          <button
-                            onClick={() => handleDeclineRequest(selectedConversation._id)}
-                            className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition"
-                          >
-                            Decline
-                          </button>
+                          </div>
+                          <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">
+                            1. রিকোয়েস্ট জমা
+                          </span>
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                            সম্পন্ন
+                          </span>
+                        </div>
+
+                        {/* Step 2: Under Review */}
+                        <div className="flex flex-col items-center">
+                          <div className="size-8 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-800 flex items-center justify-center font-bold text-xs mb-1.5 shadow-2xs animate-pulse">
+                            <Clock size={14} />
+                          </div>
+                          <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">
+                            2. পর্যালোচনায়
+                          </span>
+                          <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold animate-pulse">
+                            চলমান
+                          </span>
+                        </div>
+
+                        {/* Step 3: Live Dispatch */}
+                        <div className="flex flex-col items-center opacity-70">
+                          <div className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-xs mb-1.5 shadow-2xs">
+                            <MessageSquare size={13} />
+                          </div>
+                          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                            3. লাইভ চ্যাট
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-semibold">
+                            অ্যাক্টিভেশনের অপেক্ষায়
+                          </span>
                         </div>
                       </div>
-                    ) : (
-                      <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-1.5">
-                        <Clock size={22} className="mx-auto text-amber-600 animate-pulse" />
-                        <p className="text-xs font-bold text-amber-900">
-                          অ্যাডমিন পর্যালোচনার অপেক্ষায় আছে
-                        </p>
-                        <p className="text-[11px] text-amber-800 max-w-sm mx-auto leading-relaxed">
-                          আপনার রিকোয়েস্টটি সফলভাবে জমা হয়েছে। অ্যাডমিন রিকোয়েস্টটি এক্সেপ্ট করার পরই এটি লাইভ চ্যাটবোর্ডে ট্রান্সফার হবে এবং মেসেজ শুরু হবে।
+                    </div>
+
+                    {/* Ticket Details Container */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-slate-200 dark:border-slate-800 shadow-xs sm:shadow-sm space-y-4">
+                      {/* Header Details */}
+                      <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400 border border-amber-200 dark:border-amber-800 animate-pulse">
+                          <Clock size={12} />
+                          Pending Admin Review
+                        </span>
+                        <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 mt-2">
+                          {selectedConversation.subject}
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          Submitted by <span className="font-bold text-slate-700 dark:text-slate-300">{selectedConversation.requesterName}</span> ({selectedConversation.requesterRole}) · {new Date(selectedConversation.createdAt).toLocaleString()}
                         </p>
                       </div>
-                    )}
+
+                      {/* Submitted Problem Description Card */}
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-1.5">
+                          Submitted Problem Description
+                        </span>
+                        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap font-sans">
+                          {selectedConversation.initialMessage}
+                        </div>
+                      </div>
+
+                      {/* Metadata summary */}
+                      <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs">
+                        <div>
+                          <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block">Category</span>
+                          <span className="font-bold text-slate-700 dark:text-slate-300">{selectedConversation.category.replace("_", " ")}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block">Urgency Level</span>
+                          <span className={`font-bold ${selectedConversation.urgency === 'Critical' ? 'text-red-600 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'}`}>
+                            {selectedConversation.urgency}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Emergency Meta Details if linked */}
+                      {selectedConversation.emergencyMeta?.relatedType && (
+                        <div className="p-4 rounded-2xl bg-red-50/60 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-xs space-y-2">
+                          <span className="text-[10px] font-black uppercase text-red-700 dark:text-red-400 tracking-wider flex items-center gap-1.5">
+                            <Droplet size={12} className="text-red-600 dark:text-red-400" />
+                            Emergency Dispatch Details
+                          </span>
+                          <div className="grid grid-cols-2 gap-2 text-slate-800 dark:text-slate-200">
+                            {selectedConversation.emergencyMeta.bloodGroup && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Blood Group</span>
+                                <span className="font-black text-red-600 dark:text-red-400 text-sm">{selectedConversation.emergencyMeta.bloodGroup}</span>
+                              </div>
+                            )}
+                            {selectedConversation.emergencyMeta.hospital && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Hospital</span>
+                                <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedConversation.emergencyMeta.hospital}</span>
+                              </div>
+                            )}
+                            {selectedConversation.emergencyMeta.unitsNeeded && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Units Needed</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedConversation.emergencyMeta.unitsNeeded} Bag(s)</span>
+                              </div>
+                            )}
+                            {selectedConversation.emergencyMeta.contactNumber && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Contact Phone</span>
+                                <span className="font-bold font-mono text-red-700 dark:text-red-400">{selectedConversation.emergencyMeta.contactNumber}</span>
+                              </div>
+                            )}
+                            {selectedConversation.emergencyMeta.zone && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Flood Zone</span>
+                                <span className="font-black text-[#173b69] dark:text-blue-400">{selectedConversation.emergencyMeta.zone}</span>
+                              </div>
+                            )}
+                            {selectedConversation.emergencyMeta.location && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Specific Location</span>
+                                <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedConversation.emergencyMeta.location}</span>
+                              </div>
+                            )}
+                            {selectedConversation.emergencyMeta.peopleCount > 0 && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Stranded Count</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedConversation.emergencyMeta.peopleCount} People</span>
+                              </div>
+                            )}
+                            {selectedConversation.emergencyMeta.needs && (
+                              <div className="col-span-2">
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Emergency Needs</span>
+                                <span className="font-medium text-slate-800 dark:text-slate-200">{selectedConversation.emergencyMeta.needs}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Admin Action Box vs Student Waiting Box */}
+                      {isAdmin ? (
+                        <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 space-y-3">
+                          <p className="text-xs text-emerald-900 dark:text-emerald-200 font-medium leading-relaxed">
+                            স্টুডেন্টের সমস্যা পর্যালোচনা করুন। আপনি <b>"Accept Request & Open Chatboard"</b> বাটনে ক্লিক করার পরই এটি লাইভ চ্যাটবোর্ডে ট্রান্সফার হবে এবং উভয় পক্ষ সরাসরি মেসেজ আদান-প্রদান করতে পারবে।
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              onClick={() => handleAcceptRequest(selectedConversation._id)}
+                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5"
+                            >
+                              <Check size={14} />
+                              Accept Request & Open Chatboard
+                            </button>
+                            <button
+                              onClick={() => handleDeclineRequest(selectedConversation._id)}
+                              className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 text-xs font-bold transition"
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 space-y-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="size-9 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+                              <Clock size={18} className="animate-pulse" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-amber-900 dark:text-amber-200">
+                                অ্যাডমিন পর্যালোচনার অপেক্ষায় আছে
+                              </p>
+                              <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-snug">
+                                আপনার রিকোয়েস্টটি সেন্ট্রাল অ্যাডমিন টিমে জমা হয়েছে। দ্রুত অ্যাক্সেপ্ট করে চ্যাটবক্স উন্মুক্ত করা হবে।
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Quick Emergency Assistance While Waiting */}
+                          <div className="pt-2.5 border-t border-amber-200/60 dark:border-amber-800/40 flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <div className="text-[11px] text-amber-900 dark:text-amber-300 flex items-center gap-1">
+                              <span>🚨 জরুরি উদ্ধার প্রয়োজন?</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <a
+                                href="tel:999"
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-red-600 text-white text-[11px] font-bold hover:bg-red-700 transition"
+                              >
+                                📞 999
+                              </a>
+                              <a
+                                href="tel:01712409199"
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#173b69] dark:bg-blue-600 text-white text-[11px] font-bold transition"
+                              >
+                                📞 কন্ট্রোল রুম
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ) : (

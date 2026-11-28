@@ -726,16 +726,16 @@ const BloodBank = () => {
                     >
                       <div>
                         {/* Header: Blood Group & Urgency Pill */}
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-2.5">
-                            <span className="size-11 rounded-2xl bg-red-50 text-red-600 font-black text-base flex items-center justify-center border border-red-200 shadow-xs">
+                            <span className="size-11 rounded-2xl bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 font-black text-base flex items-center justify-center border border-red-200 dark:border-red-900/50 shadow-xs">
                               {req.bloodGroup}
                             </span>
                             <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400">
+                              <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500">
                                 Required:
                               </span>
-                              <p className="text-xs font-bold text-slate-800">
+                              <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
                                 {req.unitsNeeded} {req.unitsNeeded > 1 ? "Bags" : "Bag"}
                               </p>
                             </div>
@@ -815,7 +815,7 @@ const BloodBank = () => {
                             <button
                               type="button"
                               onClick={() => handleEmergencyChat(req)}
-                              className="flex items-center justify-center gap-1.5 rounded-xl border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 py-2 text-xs font-bold transition shadow-2xs truncate"
+                              className="flex items-center justify-center gap-1.5 rounded-xl border border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-700 dark:text-red-300 py-2 text-xs font-bold transition shadow-2xs truncate"
                               title="Start emergency live triage and chat with dispatch admin"
                             >
                               <MessageSquare size={13} className="shrink-0" />
