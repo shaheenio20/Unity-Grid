@@ -353,21 +353,21 @@ function Home() {
 
       {/* ──────────────── THEME 02: CONNECT COMMUNITIES 3-PILLAR SHOWCASE ──────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
-        <div className="rounded-3xl bg-white border border-slate-200/90 shadow-xl p-5 sm:p-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-slate-100">
+        <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xl p-5 sm:p-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[11px] font-black uppercase tracking-wider mb-2">
-                <Sparkles size={13} className="text-blue-600" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 text-[11px] font-black uppercase tracking-wider mb-2">
+                <Sparkles size={13} className="text-blue-600 dark:text-blue-400" />
                 <span>Theme 02 · Connect Communities</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 Unified Ecosystem for Local Impact & Disaster Resilience
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
                 Bridging civic institutions, environmental hazard monitoring, and real-time community support across Metropolitan University and the greater Sylhet region.
               </p>
             </div>
-            <span className="hidden lg:inline-flex text-[11px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shrink-0">
+            <span className="hidden lg:inline-flex text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl shrink-0">
               100% Theme Alignment
             </span>
           </div>
@@ -375,41 +375,41 @@ function Home() {
           {/* 3 Pillars Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
             {/* Pillar 1: Civic Services & Local Solutions */}
-            <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50/50 to-white p-5 flex flex-col justify-between hover:shadow-md transition">
+            <div className="rounded-2xl border border-blue-100 dark:border-blue-900/40 bg-gradient-to-b from-blue-50/50 dark:from-blue-950/30 to-white dark:to-slate-900/80 p-5 flex flex-col justify-between hover:shadow-md transition">
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-blue-100">
+                <div className="flex items-center justify-between pb-3 border-b border-blue-100 dark:border-blue-900/40">
                   <span className="size-10 rounded-xl bg-blue-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
                     01
                   </span>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-blue-700 bg-blue-100/70 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-blue-700 dark:text-blue-300 bg-blue-100/70 dark:bg-blue-900/40 px-2.5 py-0.5 rounded-full">
                     Civic Solutions
                   </span>
                 </div>
 
-                <h3 className="text-base font-black text-slate-900 mt-3.5">
+                <h3 className="text-base font-black text-slate-900 dark:text-slate-100 mt-3.5">
                   Civic Services & Local Solutions
                 </h3>
-                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
                   Solving hyper-local emergencies across Sylhet basin with verified public financial audits and administrative response triage.
                 </p>
 
-                <ul className="mt-3.5 space-y-2 text-xs text-slate-700">
+                <ul className="mt-3.5 space-y-2 text-xs text-slate-700 dark:text-slate-300">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-blue-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
                     <span>100% Publicly Audited Relief Ledger</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-blue-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
                     <span>Verified Civic Emergency Helplines</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-blue-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
                     <span>Rapid Admin Triage & Dispatch Desk</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-blue-100">
+              <div className="mt-5 pt-3 border-t border-blue-100 dark:border-blue-900/40">
                 <Link
                   to="/crisis"
                   className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white py-2 text-xs font-bold transition shadow-xs"
@@ -421,41 +421,41 @@ function Home() {
             </div>
 
             {/* Pillar 2: Environment & Responsible Living */}
-            <div className="rounded-2xl border border-teal-100 bg-gradient-to-b from-teal-50/50 to-white p-5 flex flex-col justify-between hover:shadow-md transition">
+            <div className="rounded-2xl border border-teal-100 dark:border-teal-900/40 bg-gradient-to-b from-teal-50/50 dark:from-teal-950/30 to-white dark:to-slate-900/80 p-5 flex flex-col justify-between hover:shadow-md transition">
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-teal-100">
+                <div className="flex items-center justify-between pb-3 border-b border-teal-100 dark:border-teal-900/40">
                   <span className="size-10 rounded-xl bg-teal-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
                     02
                   </span>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 bg-teal-100/70 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 dark:text-teal-300 bg-teal-100/70 dark:bg-teal-900/40 px-2.5 py-0.5 rounded-full">
                     Eco Resilience
                   </span>
                 </div>
 
-                <h3 className="text-base font-black text-slate-900 mt-3.5">
+                <h3 className="text-base font-black text-slate-900 dark:text-slate-100 mt-3.5">
                   Environment & Responsible Living
                 </h3>
-                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
                   Active river basin hazard tracking, climate disaster resilience, safe water hygiene, and waste-minimized community living.
                 </p>
 
-                <ul className="mt-3.5 space-y-2 text-xs text-slate-700">
+                <ul className="mt-3.5 space-y-2 text-xs text-slate-700 dark:text-slate-300">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-teal-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-teal-600 dark:text-teal-400 shrink-0" />
                     <span>Surma & Kushiyara River Water Watch</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-teal-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-teal-600 dark:text-teal-400 shrink-0" />
                     <span>Waterborne Disease & Eco Hygiene Alerts</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-teal-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-teal-600 dark:text-teal-400 shrink-0" />
                     <span>Zero-Waste Food & Material Distribution</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-teal-100">
+              <div className="mt-5 pt-3 border-t border-teal-100 dark:border-teal-900/40">
                 <Link
                   to="/crisis"
                   className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white py-2 text-xs font-bold transition shadow-xs"
@@ -467,41 +467,41 @@ function Home() {
             </div>
 
             {/* Pillar 3: Community Support & Collaboration */}
-            <div className="rounded-2xl border border-rose-100 bg-gradient-to-b from-rose-50/50 to-white p-5 flex flex-col justify-between hover:shadow-md transition">
+            <div className="rounded-2xl border border-rose-100 dark:border-rose-900/40 bg-gradient-to-b from-rose-50/50 dark:from-rose-950/30 to-white dark:to-slate-900/80 p-5 flex flex-col justify-between hover:shadow-md transition">
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-rose-100">
+                <div className="flex items-center justify-between pb-3 border-b border-rose-100 dark:border-rose-900/40">
                   <span className="size-10 rounded-xl bg-rose-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
                     03
                   </span>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-700 bg-rose-100/70 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-700 dark:text-rose-300 bg-rose-100/70 dark:bg-rose-900/40 px-2.5 py-0.5 rounded-full">
                     Collaboration
                   </span>
                 </div>
 
-                <h3 className="text-base font-black text-slate-900 mt-3.5">
+                <h3 className="text-base font-black text-slate-900 dark:text-slate-100 mt-3.5">
                   Community Support & Collaboration
                 </h3>
-                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
                   Real-time bidirectional assistance connecting voluntary blood donors, rescue volunteers, and campus peer societies.
                 </p>
 
-                <ul className="mt-3.5 space-y-2 text-xs text-slate-700">
+                <ul className="mt-3.5 space-y-2 text-xs text-slate-700 dark:text-slate-300">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-rose-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-rose-600 dark:text-rose-400 shrink-0" />
                     <span>24/7 Voluntary Blood Donor Network</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-rose-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-rose-600 dark:text-rose-400 shrink-0" />
                     <span>Socket.io Live Chat & Action Checklists</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-rose-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-rose-600 dark:text-rose-400 shrink-0" />
                     <span>Student Leadership & Peer Learning Hub</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-rose-100">
+              <div className="mt-5 pt-3 border-t border-rose-100 dark:border-rose-900/40">
                 <Link
                   to="/blood"
                   className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white py-2 text-xs font-bold transition shadow-xs"
